@@ -27,7 +27,7 @@ defmodule Quantity.MixProject do
       {:decimal, "~> 1.0"},
 
       # Documentation
-      {:ex_doc, "~> 0.21", only: [:dev]},
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
 
       # Static code analysis
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
