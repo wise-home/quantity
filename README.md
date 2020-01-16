@@ -30,15 +30,24 @@ Quantity.new(6578, -2, "seconds")
 # ~Q[65.78 seconds]
 ```
 
-#### The ~Q helper
+#### The ~Q and ~d helpers
 
 `Quantity` has a special `sigil_Q/2` helper and therefore the `~Q` notation as seen above. We can create them using the `~Q` helper, and they are printed the same way when inspected.
 
 ```elixir
-import Quantity.Helpers
+import Quantity.Helpers, only: [sigil_Q: 2]
 
 ~Q[500 bananas]
 # ~Q[500 bananas]
+```
+
+Additionally a `sigil_d/2` helpers is also present to easily create decimals:
+
+```elixir
+import Quantity.Helpers, only: [sigil_d: 2]
+
+~d[123.456]
+#Decimal<123.456>
 ```
 
 #### Data structure
