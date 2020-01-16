@@ -1,6 +1,6 @@
-defmodule Quantity.Helpers do
+defmodule Quantity.Sigils do
   @moduledoc """
-  Helpers related to Quantity and Decimal
+  Sigils related to Quantity and Decimal
   """
 
   @doc """

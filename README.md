@@ -1,6 +1,6 @@
 # Quantity
 
-A `Quantity` is a data structure that encapsulates values with units. This data structure can be used to carry values and units through calculations using the calculation functions in the Quantity library.
+A `Quantity` is an Elixir data structure that encapsulates values with units. This data structure can be used to carry values and units through calculations using the calculation functions in the Quantity library.
 
 ## Usage
 
@@ -30,21 +30,21 @@ Quantity.new(6578, -2, "seconds")
 # ~Q[65.78 seconds]
 ```
 
-#### The ~Q and ~d helpers
+#### The ~Q and ~d sigils
 
-`Quantity` has a special `sigil_Q/2` helper and therefore the `~Q` notation as seen above. We can create them using the `~Q` helper, and they are printed the same way when inspected.
+`Quantity` has a special `sigil_Q/2` sigil, as seen above. Quantities can be created using the `~Q` sigil, and they are printed as `~Q` when inspected.
 
 ```elixir
-import Quantity.Helpers, only: [sigil_Q: 2]
+import Quantity.Sigils, only: [sigil_Q: 2]
 
 ~Q[500 bananas]
 # ~Q[500 bananas]
 ```
 
-Additionally a `sigil_d/2` helpers is also present to easily create decimals:
+Additionally a `sigil_d/2` sigil is also present to easily create decimals:
 
 ```elixir
-import Quantity.Helpers, only: [sigil_d: 2]
+import Quantity.Sigils, only: [sigil_d: 2]
 
 ~d[123.456]
 #Decimal<123.456>
