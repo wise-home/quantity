@@ -1,6 +1,6 @@
 defmodule Quantity.Test.Case do
   @moduledoc """
-  Basic test helper for WiseHomex tests
+  Basic test helper for Quantity tests
   """
 
   use ExUnit.CaseTemplate
