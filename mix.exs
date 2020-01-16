@@ -10,7 +10,13 @@ defmodule Quantity.MixProject do
       deps: deps(),
       aliases: aliases(),
       dialyzer: dialyzer(),
-      elixirc_paths: elixirc_paths(Mix.env())
+      elixirc_paths: elixirc_paths(Mix.env()),
+
+      # Docs
+      name: "Quantity",
+      source_url: "https://github.com/wise-home/quantity",
+      homepage_url: "https://github.com/wise-home/quantity",
+      docs: docs()
     ]
   end
 
@@ -47,6 +53,13 @@ defmodule Quantity.MixProject do
   defp aliases do
     [
       compile: ["compile --warnings-as-errors"]
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      extras: ["README.md"]
     ]
   end
 end
