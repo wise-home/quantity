@@ -71,8 +71,6 @@ defmodule Quantity.MixProject do
   defp package() do
     [
       # These are the default files included in the package
-      organization: "wisehome",
-      files: ~w(lib priv .formatter.exs mix.exs README* LICENSE* CHANGELOG.md src),
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/wise-home/quantity"}
     ]
