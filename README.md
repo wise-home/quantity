@@ -79,3 +79,12 @@ def deps do
 end
 ```
 
+
+## Versions of Elixir and Erlang
+
+Quantity will be tested against the two latest minor versions of Elixir (but >= 1.9) and the three latest minor versions of Erlang. In all cases the latest patch version is used.
+
+E.g. if the latest Elixir is 1.9.4 and the latest Erlang is 22.2.2, we test against:
+
+    Elixir: 1.9.4
+    Erlang: 22.0.7, 22.1.8.1 and 22.2.2
