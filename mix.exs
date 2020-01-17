@@ -12,6 +12,10 @@ defmodule Quantity.MixProject do
       dialyzer: dialyzer(),
       elixirc_paths: elixirc_paths(Mix.env()),
 
+      # Hex
+      description: "An Elixir data structure that encapsulates a decimal value with a unit",
+      package: package(),
+
       # Docs
       name: "Quantity",
       source_url: "https://github.com/wise-home/quantity",
@@ -30,6 +34,7 @@ defmodule Quantity.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      # Decimal
       {:decimal, "~> 1.0"},
 
       # Documentation
@@ -60,6 +65,16 @@ defmodule Quantity.MixProject do
     [
       main: "readme",
       extras: ["README.md"]
+    ]
+  end
+
+  defp package() do
+    [
+      # These are the default files included in the package
+      organization: "wisehome",
+      files: ~w(lib priv .formatter.exs mix.exs README* LICENSE* CHANGELOG.md src),
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/wise-home/quantity"}
     ]
   end
 end
