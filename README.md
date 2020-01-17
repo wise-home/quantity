@@ -2,6 +2,8 @@
 
 A `Quantity` is an Elixir data structure that encapsulates values with units. This data structure can be used to carry values and units through calculations using the calculation functions in the Quantity library.
 
+Version 0.1.0 of this library includes the basic functionality. More functionality for doing math with quantities is coming up.
+
 ## Usage
 
 #### Creating Quantities
