@@ -13,6 +13,15 @@ defmodule Quantity do
     :unit
   ]
 
+  defdelegate add(quantity_1, quantity_2), to: Quantity.Math
+  defdelegate add!(quantity_1, quantity_2), to: Quantity.Math
+  defdelegate sub(quantity_1, quantity_2), to: Quantity.Math
+  defdelegate sub!(quantity_1, quantity_2), to: Quantity.Math
+  defdelegate sum(quantities), to: Quantity.Math
+  defdelegate sum(quantities, exp, unit), to: Quantity.Math
+  defdelegate sum!(quantities), to: Quantity.Math
+  defdelegate sum!(quantities, exp, unit), to: Quantity.Math
+
   @doc """
   Builds a new Quantity from a Decimal and a unit
   """
