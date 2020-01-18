@@ -13,8 +13,8 @@ defmodule Quantity.Math do
   :error
   """
   @spec add(Quantity.t(), Quantity.t()) :: {:ok, Quantity.t()} | :error
-  def add(%{unit: unit, value: a}, %{unit: unit, value: b}) do
-    {:ok, Quantity.new(Decimal.add(a, b), unit)}
+  def add(%{unit: unit} = a, %{unit: unit} = b) do
+    {:ok, Quantity.new(Decimal.add(a.value, b.value), unit)}
   end
 
   def add(_, _) do
