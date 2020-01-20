@@ -88,16 +88,14 @@ defmodule Quantity.Math do
   def sum(quantities) do
     {first, remaining} = quantities |> List.pop_at(0)
 
-    result =
-      remaining
-      |> Enum.reduce_while(first, fn quantity, acc ->
-        case add(quantity, acc) do
-          {:ok, result} -> {:cont, result}
-          :error -> {:halt, :error}
-        end
-      end)
-
-    case result do
+    remaining
+    |> Enum.reduce_while(first, fn quantity, acc ->
+      case add(quantity, acc) do
+        {:ok, result} -> {:cont, result}
+        :error -> {:halt, :error}
+      end
+    end)
+    |> case do
       :error -> :error
       result -> {:ok, result}
     end
