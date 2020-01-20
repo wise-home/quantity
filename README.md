@@ -136,20 +136,6 @@ Underneath, a `Quantity` is simply a map consisting of `value` and `unit`, where
 ```
 
 
-## Installation
-
-The package is only available on GitHub at the moment, it can be added to `mix.exs` using:
-
-```elixir
-def deps do
-  [
-    # Add Quantity from GitHub
-    {:quantity, git: "https://github.com/wise-home/quantity.git", tag: "0.1.0"}
-  ]
-end
-```
-
-
 ## Versions of Elixir and Erlang
 
 Quantity will be tested against the two latest minor versions of Elixir (but >= 1.9) and the three latest minor versions of Erlang. In all cases the latest patch version is used.
