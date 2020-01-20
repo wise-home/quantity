@@ -4,7 +4,18 @@
 
 A `Quantity` is an Elixir data structure that encapsulates values with units. This data structure can be used to carry values and units through calculations using the calculation functions in the Quantity library.
 
-Version 0.1.0 of this library includes the basic functionality. More functionality for doing math with quantities is coming up.
+```elixir
+~Q[200.345 kWh] |> Quantity.add(~Q[249.23 kWh])
+# {:ok, ~Q[449.575 kWh]}
+
+[
+  ~Q[13.49 second],
+  ~Q[12.39 second],
+  ~Q[4.49 second]
+]
+|> Quantity.sum()
+# {:ok, ~Q[30.37 second]}
+```
 
 ## Usage
 
@@ -30,8 +41,65 @@ Quantity.new(Decimal.new("300.445"), "km")
 And lastly a `Quantity` can be created from a value, an exponent and a unit:
 
 ```elixir
-Quantity.new(6578, -2, "seconds")
-# ~Q[65.78 seconds]
+Quantity.new(6578, -2, "second")
+# ~Q[65.78 second]
+```
+
+#### Addition and subtraction
+
+Basic math can be done using the `add/2` and `sub/2` functions along with their `add!/2` and `sub!/2` siblings:
+
+```elixir
+Quantity.add(~Q[500 mL coffee], ~Q[250 mL coffee])
+# {:ok, ~Q[750 mL coffee]}
+
+Quantity.add!(~Q[500 mL coffee], ~Q[250 mL coffee])
+# ~Q[750 mL coffee]
+
+Quantity.sub(~Q[250 gram], ~Q[125 gram])
+# {:ok, ~Q[125 gram]}
+
+Quantity.sub!(~Q[250 gram], ~Q[125 gram])
+# ~Q[125 gram]
+```
+
+#### Summation
+
+To sum non-empty lists with identical units, `sum/1` and `sum!/1` can be used:
+
+```elixir
+lap_times = [
+  ~Q[4.24 second],
+  ~Q[4.59 second],
+  ~Q[5.22 second],
+  ~Q[3.99 second]
+]
+
+lap_times |> Quantity.sum()
+# {:ok, ~Q[18.04 second]}
+
+lap_times |> Quantity.sum!()
+# ~Q[18.04 second]
+
+[] |> Quantity.sum()
+# :error
+```
+
+When a list is empty, `Quantity` doesn't know what precision and unit the result should have. If a `Quantity` with value 0 is desired when summing an empty list, one can use `sum/3` and `sum!/3`:
+
+```elixir
+sales_2018 = []
+
+sales_2019 = [
+  ~Q[1234.39 EUR],
+  ~Q[228.50 EUR]
+]
+
+sales_2018 |> Quantity.sum(-2, "EUR")
+# {:ok, ~Q[0.00 EUR]}
+
+sales_2019 |> Quantity.sum(-2, "EUR")
+# {:ok, ~Q[1462.89 EUR]}
 ```
 
 #### The ~Q and ~d sigils
