@@ -9,6 +9,9 @@ defmodule Quantity.Math do
   iex> add(~Q[1.34 MWh], ~Q[3.49 MWh])
   {:ok, ~Q[4.83 MWh]}
 
+  iex> add(~Q[1.234567 days], ~Q[3.5 days])
+  {:ok, ~Q[4.734567 days]}
+
   iex> add(~Q[10 goats], ~Q[40 sheep])
   :error
   """
