@@ -3,29 +3,36 @@ defmodule Quantity do
   A data structure that encapsulates a decimal value with a unit.
   """
 
+  alias Quantity.Math
+
   @type t :: %__MODULE__{
           value: Decimal.t(),
-          unit: String.t()
+          unit: unit
         }
+
+  @type unit :: String.t() | {:div | :mult, String.t(), String.t()}
 
   defstruct [
     :value,
     :unit
   ]
 
-  defdelegate add(quantity_1, quantity_2), to: Quantity.Math
-  defdelegate add!(quantity_1, quantity_2), to: Quantity.Math
-  defdelegate sub(quantity_1, quantity_2), to: Quantity.Math
-  defdelegate sub!(quantity_1, quantity_2), to: Quantity.Math
-  defdelegate sum(quantities), to: Quantity.Math
-  defdelegate sum(quantities, exp, unit), to: Quantity.Math
-  defdelegate sum!(quantities), to: Quantity.Math
-  defdelegate sum!(quantities, exp, unit), to: Quantity.Math
+  defdelegate add!(quantity_1, quantity_2), to: Math
+  defdelegate add(quantity_1, quantity_2), to: Math
+  defdelegate div(dividend, divisor), to: Math
+  defdelegate mult(quantity, quantity_or_scalar), to: Math
+  defdelegate round(quantity, decimals), to: Math
+  defdelegate sub!(quantity_1, quantity_2), to: Math
+  defdelegate sub(quantity_1, quantity_2), to: Math
+  defdelegate sum!(quantities), to: Math
+  defdelegate sum!(quantities, exp, unit), to: Math
+  defdelegate sum(quantities), to: Math
+  defdelegate sum(quantities, exp, unit), to: Math
 
   @doc """
   Builds a new Quantity from a Decimal and a unit
   """
-  @spec new(Decimal.t(), String.t()) :: t
+  @spec new(Decimal.t(), unit) :: t
   def new(value, unit) do
     %__MODULE__{
       value: value,
@@ -36,7 +43,7 @@ defmodule Quantity do
   @doc """
   Builds a new Quantity from a base value, exponent and unit
   """
-  @spec new(integer, integer, String.t()) :: t
+  @spec new(integer, integer, unit) :: t
   def new(base_value, exponent, unit) do
     sign = if base_value < 0, do: -1, else: 1
     positive_base_value = abs(base_value)
@@ -46,11 +53,30 @@ defmodule Quantity do
 
   @doc """
   Parses a string representation of a quantity (perhaps generated with to_string/1)
+
+  iex> Quantity.parse("99.0 red_balloons")
+  {:ok, Quantity.new(~d[99.0], "red_balloons")}
+
+  iex> Quantity.parse("15 bananas/monkey")
+  {:ok, Quantity.new(~d[15], {:div, "bananas", "monkey"})}
+
+  iex> Quantity.parse("15 m*m")
+  {:ok, Quantity.new(~d[15], {:mult, "m", "m"})}
+
+  iex> Quantity.parse("bogus")
+  :error
   """
   @spec parse(String.t()) :: {:ok, t} | :error
   def parse(input) do
-    with [value_string, unit] <- String.split(input, " ", parts: 2),
+    with [value_string, unit_string] <- String.split(input, " ", parts: 2),
          {:ok, value} <- Decimal.parse(value_string) do
+      unit =
+        cond do
+          unit_string =~ "/" -> [:div | String.split(unit_string, "/", parts: 2)] |> List.to_tuple()
+          unit_string =~ "*" -> [:mult | String.split(unit_string, "*", parts: 2)] |> List.to_tuple()
+          true -> unit_string
+        end
+
       {:ok, new(value, unit)}
     else
       _ -> :error
@@ -58,7 +84,7 @@ defmodule Quantity do
   end
 
   @doc """
-  Same as parse/1, but errors if it could not parse
+  Same as parse/1, but raises if it could not parse
   """
   @spec parse!(String.t()) :: t
   def parse!(input) do
@@ -74,6 +100,10 @@ defmodule Quantity do
   "4.2 db"
   iex> Quantity.new(42, 1, "db") |> Quantity.to_string()
   "42E1 db"
+  iex> Quantity.new(~d[3600], {:div, "seconds", "hour"}) |> Quantity.to_string()
+  "3600 seconds/hour"
+  iex> Quantity.new(~d[34], {:mult, "m", "m"}) |> Quantity.to_string()
+  "34 m*m"
   """
   @spec to_string(t) :: String.t()
   def to_string(quantity) do
@@ -84,8 +114,60 @@ defmodule Quantity do
         Decimal.to_string(quantity.value, :normal)
       end
 
-    "#{decimal_string} #{quantity.unit}"
+    unit_string =
+      case quantity.unit do
+        {:div, u1, u2} -> "#{u1}/#{u2}"
+        {:mult, u1, u2} -> "#{u1}*#{u2}"
+        unit -> unit
+      end
+
+    "#{decimal_string} #{unit_string}"
   end
+
+  @doc """
+  Tests if a quantity has zero value
+
+  iex> Quantity.zero?(~Q[0.00 m^2])
+  true
+
+  iex> Quantity.zero?(~Q[0E7 m^2])
+  true
+
+  iex> Quantity.zero?(~Q[10 m^2])
+  false
+  """
+  @spec zero?(t) :: boolean
+  def zero?(quantity), do: quantity.value.coef == 0
+
+  @doc """
+  Test whether a Quantity is negative
+
+  iex> ~Q[100.00 DKK] |> Quantity.negative?()
+  false
+
+  iex> ~Q[0.00 DKK] |> Quantity.negative?()
+  false
+
+  iex> ~Q[-1.93 DKK] |> Quantity.negative?()
+  true
+  """
+  @spec negative?(t) :: boolean()
+  def negative?(%{value: value}), do: Decimal.negative?(value)
+
+  @doc """
+  Test whether a Quantity is positive
+
+  iex> ~Q[100.00 DKK] |> Quantity.positive?()
+  true
+
+  iex> ~Q[0.00 DKK] |> Quantity.positive?()
+  false
+
+  iex> ~Q[-1.93 DKK] |> Quantity.positive?()
+  false
+  """
+  @spec positive?(t) :: boolean()
+  def positive?(%{value: value}), do: Decimal.positive?(value)
 
   @doc """
   Extracts the base value from the quantity
@@ -102,7 +184,7 @@ defmodule Quantity do
   @doc """
   Extracts the unit from the quantity
   """
-  @spec unit(t) :: String.t()
+  @spec unit(t) :: unit
   def unit(quantity), do: quantity.unit
 
   defimpl String.Chars, for: __MODULE__ do

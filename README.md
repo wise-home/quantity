@@ -15,6 +15,11 @@ A `Quantity` is an Elixir data structure that encapsulates values with units. Th
 ]
 |> Quantity.sum()
 # {:ok, ~Q[30.37 second]}
+
+cost = ~Q[0.40 $/banana]
+amount = ~Q[2000 banana]
+Quantity.mult(cost, amount)
+# ~Q[800.00 $]
 ```
 
 ## Usage
@@ -29,6 +34,14 @@ Quantity.parse("200.345 EUR")
 
 Quantity.parse!("200.345 EUR")
 # ~Q[200.345 EUR]
+
+Quantity.parse!("20.67 EUR/beer")
+# ~Q[20.67 EUR/beer] or the same as
+# Quantity.new(~d[20.67], {:div, "EUR", "beer"})
+
+Quantity.parse!("15.0 m*m")
+# ~Q[15.0 m*m] or the same as
+# Quantity.new(~d[15.0], {:mult, "m", "m"})
 ```
 
 The `Quantity` module also has `new/2` which creates a `Quantity` from a `Decimal.t()` and a `String.t()`:
@@ -102,6 +115,27 @@ sales_2019 |> Quantity.sum(-2, "EUR")
 # {:ok, ~Q[1462.89 EUR]}
 ```
 
+#### Multiplication and division
+
+Quantity has support for single-level complex units that are divided or multiplied:
+
+```elixir
+cost = ~Q[20.00 $]
+amount = ~Q[50 banana]
+cost_per_banana = Quantity.div(cost, amount)
+# ~Q[0.40 $/banana]
+
+new_amount = ~Q[2000 banana]
+Quantity.mult(cost_per_banana, new_amount)
+# ~Q[800.00 $]
+
+Quantity.mult(~Q[5 m], ~Q[4.3 m])
+# ~Q[21.5 m*m]
+
+Quantity.mult(~Q[5 m], ~d[20.01])
+# ~Q[100.05 m]
+```
+
 #### The ~Q and ~d sigils
 
 `Quantity` has a special `sigil_Q/2` sigil, as seen above. Quantities can be created using the `~Q` sigil, and they are printed as `~Q` when inspected.
@@ -111,6 +145,11 @@ import Quantity.Sigils, only: [sigil_Q: 2]
 
 ~Q[500 bananas]
 # ~Q[500 bananas]
+
+# Supports :mult and :div units
+~Q[0.54 $/banana]
+~Q[13.2 m*m]
+
 ```
 
 Additionally a `sigil_d/2` sigil is also present to easily create decimals:

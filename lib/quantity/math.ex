@@ -154,4 +154,72 @@ defmodule Quantity.Math do
       :error -> raise(ArgumentError)
     end
   end
+
+  @doc """
+  Divide a Quantity by a scalar or another Quantity
+
+  iex> Quantity.div(~Q[15 $], ~Q[10 banana])
+  ~Q[1.5 $/banana]
+
+  iex> Quantity.div(~Q[15 $], ~d[10])
+  ~Q[1.5 $]
+
+  iex> Quantity.div(~Q[15 $], ~Q[10 $])
+  ~d[1.5]
+  """
+  @spec div(Quantity.t(), Quantity.t() | Decimal.t()) :: Quantity.t() | Decimal.t()
+
+  def div(%Quantity{unit: unit} = q1, %Quantity{unit: unit} = q2) do
+    Decimal.div(q1.value, q2.value)
+  end
+
+  def div(%Quantity{} = q1, %Quantity{} = q2) do
+    Quantity.new(Decimal.div(q1.value, q2.value), {:div, q1.unit, q2.unit})
+  end
+
+  def div(%Quantity{} = quantity, %Decimal{} = scalar) do
+    Quantity.new(Decimal.div(quantity.value, scalar), quantity.unit)
+  end
+
+  @doc """
+  Multiply a quantity by a scalar or another quantity
+
+  iex> Quantity.mult(~Q[15 $], ~d[4])
+  ~Q[60 $]
+
+  iex> Quantity.mult(~Q[15 $], ~Q[4 banana])
+  ~Q[60 $*banana]
+
+  iex> Quantity.mult(~Q[15 $/banana], ~Q[4 banana])
+  ~Q[60 $]
+  """
+  @spec mult(Quantity.t(), Quantity.t() | Decimal.t()) :: Quantity.t()
+  def mult(%Quantity{} = quantity, %Decimal{} = scalar) do
+    Quantity.new(Decimal.mult(quantity.value, scalar), quantity.unit)
+  end
+
+  def mult(%Quantity{unit: {:div, unit, common_unit}} = q1, %Quantity{unit: common_unit} = q2) do
+    Quantity.new(Decimal.mult(q1.value, q2.value), unit)
+  end
+
+  def mult(%Quantity{unit: common_unit} = q1, %Quantity{unit: {:div, unit, common_unit}} = q2) do
+    Quantity.new(Decimal.mult(q1.value, q2.value), unit)
+  end
+
+  def mult(%Quantity{} = q1, %Quantity{} = q2) do
+    Quantity.new(Decimal.mult(q1.value, q2.value), {:mult, q1.unit, q2.unit})
+  end
+
+  @doc """
+  Round a Quantity to match a precision using the :half_up strategy
+
+  iex> Quantity.round(~Q[1.49 DKK], 1)
+  ~Q[1.5 DKK]
+
+  iex> Quantity.round(~Q[0.5 DKK], 2)
+  ~Q[0.50 DKK]
+  """
+  def round(quantity, decimal_count) do
+    Quantity.new(Decimal.round(quantity.value, decimal_count, :half_up), quantity.unit)
+  end
 end
