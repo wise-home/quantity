@@ -114,6 +114,21 @@ defmodule Quantity do
   end
 
   @doc """
+  Tests if a quantity has zero value
+
+  iex> Quantity.zero?(~Q[0.00 m^2])
+  true
+
+  iex> Quantity.zero?(~Q[0E7 m^2])
+  true
+
+  iex> Quantity.zero?(~Q[10 m^2])
+  false
+  """
+  @spec zero?(t) :: boolean
+  def zero?(quantity), do: quantity.value.coef == 0
+
+  @doc """
   Extracts the base value from the quantity
   """
   @spec base_value(t) :: integer
