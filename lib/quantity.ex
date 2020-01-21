@@ -23,6 +23,7 @@ defmodule Quantity do
   defdelegate sum(quantities, exp, unit), to: Quantity.Math
   defdelegate sum!(quantities), to: Quantity.Math
   defdelegate sum!(quantities, exp, unit), to: Quantity.Math
+  defdelegate div(dividend, divisor), to: Quantity.Math
 
   @doc """
   Builds a new Quantity from a Decimal and a unit

@@ -154,4 +154,28 @@ defmodule Quantity.Math do
       :error -> raise(ArgumentError)
     end
   end
+
+  @doc """
+  Divide a Quantity by a scalar or another Quantity
+
+  iex> Quantity.div(~Q[15 $], ~Q[10 banana])
+  ~Q[1.5 $/banana]
+  iex> Quantity.div(~Q[15 $], ~d[10])
+  ~Q[1.5 $]
+  iex> Quantity.div(~Q[15 $], ~Q[10 $])
+  ~d[1.5]
+  """
+  @spec div(Quantity.t(), Quantity.t() | Decimal.t()) :: Quantity.t() | Decimal.t()
+
+  def div(%Quantity{unit: unit} = q1, %Quantity{unit: unit} = q2) do
+    Decimal.div(q1.value, q2.value)
+  end
+
+  def div(%Quantity{} = q1, %Quantity{} = q2) do
+    Quantity.new(Decimal.div(q1.value, q2.value), {:div, q1.unit, q2.unit})
+  end
+
+  def div(%Quantity{} = quantity, %Decimal{} = scalar) do
+    Quantity.new(Decimal.div(quantity.value, scalar), quantity.unit)
+  end
 end
