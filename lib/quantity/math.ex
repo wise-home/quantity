@@ -160,8 +160,10 @@ defmodule Quantity.Math do
 
   iex> Quantity.div(~Q[15 $], ~Q[10 banana])
   ~Q[1.5 $/banana]
+
   iex> Quantity.div(~Q[15 $], ~d[10])
   ~Q[1.5 $]
+
   iex> Quantity.div(~Q[15 $], ~Q[10 $])
   ~d[1.5]
   """
