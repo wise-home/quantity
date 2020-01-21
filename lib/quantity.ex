@@ -10,7 +10,7 @@ defmodule Quantity do
           unit: unit
         }
 
-  @type unit :: String.t() | {:div, String.t(), String.t()}
+  @type unit :: String.t() | {:div | :mult, String.t(), String.t()}
 
   defstruct [
     :value,
@@ -59,6 +59,9 @@ defmodule Quantity do
   iex> Quantity.parse("15 bananas/monkey")
   {:ok, Quantity.new(~d[15], {:div, "bananas", "monkey"})}
 
+  iex> Quantity.parse("15 m*m")
+  {:ok, Quantity.new(~d[15], {:mult, "m", "m"})}
+
   iex> Quantity.parse("bogus")
   :error
   """
@@ -67,9 +70,10 @@ defmodule Quantity do
     with [value_string, unit_string] <- String.split(input, " ", parts: 2),
          {:ok, value} <- Decimal.parse(value_string) do
       unit =
-        case String.split(unit_string, "/", parts: 2) do
-          [unit] -> unit
-          [u1, u2] -> {:div, u1, u2}
+        cond do
+          unit_string =~ "/" -> [:div | String.split(unit_string, "/", parts: 2)] |> List.to_tuple()
+          unit_string =~ "*" -> [:mult | String.split(unit_string, "*", parts: 2)] |> List.to_tuple()
+          true -> unit_string
         end
 
       {:ok, new(value, unit)}
@@ -97,6 +101,8 @@ defmodule Quantity do
   "42E1 db"
   iex> Quantity.new(~d[3600], {:div, "seconds", "hour"}) |> Quantity.to_string()
   "3600 seconds/hour"
+  iex> Quantity.new(~d[34], {:mult, "m", "m"}) |> Quantity.to_string()
+  "34 m*m"
   """
   @spec to_string(t) :: String.t()
   def to_string(quantity) do
@@ -110,6 +116,7 @@ defmodule Quantity do
     unit_string =
       case quantity.unit do
         {:div, u1, u2} -> "#{u1}/#{u2}"
+        {:mult, u1, u2} -> "#{u1}*#{u2}"
         unit -> unit
       end
 
