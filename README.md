@@ -34,6 +34,14 @@ Quantity.parse("200.345 EUR")
 
 Quantity.parse!("200.345 EUR")
 # ~Q[200.345 EUR]
+
+Quantity.parse!("20.67 EUR/beer")
+# ~Q[20.67 EUR/beer] or the same as
+# Quantity.new(~d[20.67], {:div, "EUR", "beer"})
+
+Quantity.parse!("15.0 m*m")
+# ~Q[15.0 m*m] or the same as
+# Quantity.new(~d[15.0], {:mult, "m", "m"})
 ```
 
 The `Quantity` module also has `new/2` which creates a `Quantity` from a `Decimal.t()` and a `String.t()`:
@@ -137,6 +145,11 @@ import Quantity.Sigils, only: [sigil_Q: 2]
 
 ~Q[500 bananas]
 # ~Q[500 bananas]
+
+# Supports :mult and :div units
+~Q[0.54 $/banana]
+~Q[13.2 m*m]
+
 ```
 
 Additionally a `sigil_d/2` sigil is also present to easily create decimals:
