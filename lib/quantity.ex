@@ -5,8 +5,10 @@ defmodule Quantity do
 
   @type t :: %__MODULE__{
           value: Decimal.t(),
-          unit: String.t()
+          unit: unit
         }
+
+  @type unit :: String.t() | {:div, String.t(), String.t()}
 
   defstruct [
     :value,
@@ -25,7 +27,7 @@ defmodule Quantity do
   @doc """
   Builds a new Quantity from a Decimal and a unit
   """
-  @spec new(Decimal.t(), String.t()) :: t
+  @spec new(Decimal.t(), unit) :: t
   def new(value, unit) do
     %__MODULE__{
       value: value,
@@ -36,7 +38,7 @@ defmodule Quantity do
   @doc """
   Builds a new Quantity from a base value, exponent and unit
   """
-  @spec new(integer, integer, String.t()) :: t
+  @spec new(integer, integer, unit) :: t
   def new(base_value, exponent, unit) do
     sign = if base_value < 0, do: -1, else: 1
     positive_base_value = abs(base_value)
@@ -46,11 +48,26 @@ defmodule Quantity do
 
   @doc """
   Parses a string representation of a quantity (perhaps generated with to_string/1)
+
+  iex> Quantity.parse("99.0 red_balloons")
+  {:ok, Quantity.new(~d[99.0], "red_balloons")}
+
+  iex> Quantity.parse("15 bananas/monkey")
+  {:ok, Quantity.new(~d[15], {:div, "bananas", "monkey"})}
+
+  iex> Quantity.parse("bogus")
+  :error
   """
   @spec parse(String.t()) :: {:ok, t} | :error
   def parse(input) do
-    with [value_string, unit] <- String.split(input, " ", parts: 2),
+    with [value_string, unit_string] <- String.split(input, " ", parts: 2),
          {:ok, value} <- Decimal.parse(value_string) do
+      unit =
+        case String.split(unit_string, "/", parts: 2) do
+          [unit] -> unit
+          [u1, u2] -> {:div, u1, u2}
+        end
+
       {:ok, new(value, unit)}
     else
       _ -> :error
@@ -58,7 +75,7 @@ defmodule Quantity do
   end
 
   @doc """
-  Same as parse/1, but errors if it could not parse
+  Same as parse/1, but raises if it could not parse
   """
   @spec parse!(String.t()) :: t
   def parse!(input) do
@@ -74,6 +91,8 @@ defmodule Quantity do
   "4.2 db"
   iex> Quantity.new(42, 1, "db") |> Quantity.to_string()
   "42E1 db"
+  iex> Quantity.new(~d[3600], {:div, "seconds", "hour"}) |> Quantity.to_string()
+  "3600 seconds/hour"
   """
   @spec to_string(t) :: String.t()
   def to_string(quantity) do
@@ -84,7 +103,13 @@ defmodule Quantity do
         Decimal.to_string(quantity.value, :normal)
       end
 
-    "#{decimal_string} #{quantity.unit}"
+    unit_string =
+      case quantity.unit do
+        {:div, u1, u2} -> "#{u1}/#{u2}"
+        unit -> unit
+      end
+
+    "#{decimal_string} #{unit_string}"
   end
 
   @doc """
@@ -102,7 +127,7 @@ defmodule Quantity do
   @doc """
   Extracts the unit from the quantity
   """
-  @spec unit(t) :: String.t()
+  @spec unit(t) :: unit
   def unit(quantity), do: quantity.unit
 
   defimpl String.Chars, for: __MODULE__ do

@@ -19,6 +19,8 @@ defmodule Quantity.Sigils do
 
   iex> ~Q[12.340 kwh]
   Quantity.new(~d[12.340], "kwh")
+  iex> ~Q[15 $/banana]
+  Quantity.new(~d[15], {:div, "$", "banana"})
   """
   @spec sigil_Q(String.t(), []) :: Quantity.t()
   def sigil_Q(input, []) do
