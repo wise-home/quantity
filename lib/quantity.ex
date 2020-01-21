@@ -132,6 +132,36 @@ defmodule Quantity do
   def zero?(quantity), do: quantity.value.coef == 0
 
   @doc """
+  Test whether a Quantity is negative
+
+  iex> ~Q[100.00 DKK] |> Quantity.negative?()
+  false
+
+  iex> ~Q[0.00 DKK] |> Quantity.negative?()
+  false
+
+  iex> ~Q[-1.93 DKK] |> Quantity.negative?()
+  true
+  """
+  @spec negative?(t) :: boolean()
+  def negative?(%{value: value}), do: Decimal.negative?(value)
+
+  @doc """
+  Test whether a Quantity is positive
+
+  iex> ~Q[100.00 DKK] |> Quantity.positive?()
+  true
+
+  iex> ~Q[0.00 DKK] |> Quantity.positive?()
+  false
+
+  iex> ~Q[-1.93 DKK] |> Quantity.positive?()
+  false
+  """
+  @spec positive?(t) :: boolean()
+  def positive?(%{value: value}), do: Decimal.positive?(value)
+
+  @doc """
   Extracts the base value from the quantity
   """
   @spec base_value(t) :: integer
