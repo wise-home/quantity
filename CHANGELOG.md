@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+* Div, mult and more features, 8
+
 ## 0.2.0
 
 * Add basic math functions, 1
