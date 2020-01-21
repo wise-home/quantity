@@ -178,4 +178,17 @@ defmodule Quantity.Math do
   def div(%Quantity{} = quantity, %Decimal{} = scalar) do
     Quantity.new(Decimal.div(quantity.value, scalar), quantity.unit)
   end
+
+  @doc """
+  Round a Quantity to match a precision using the :half_up strategy
+
+  iex> Quantity.round(~Q[1.49 DKK], 1)
+  ~Q[1.5 DKK]
+
+  iex> Quantity.round(~Q[0.5 DKK], 2)
+  ~Q[0.50 DKK]
+  """
+  def round(quantity, decimal_count) do
+    Quantity.new(Decimal.round(quantity.value, decimal_count, :half_up), quantity.unit)
+  end
 end

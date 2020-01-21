@@ -3,6 +3,8 @@ defmodule Quantity do
   A data structure that encapsulates a decimal value with a unit.
   """
 
+  alias Quantity.Math
+
   @type t :: %__MODULE__{
           value: Decimal.t(),
           unit: unit
@@ -15,15 +17,16 @@ defmodule Quantity do
     :unit
   ]
 
-  defdelegate add(quantity_1, quantity_2), to: Quantity.Math
-  defdelegate add!(quantity_1, quantity_2), to: Quantity.Math
-  defdelegate sub(quantity_1, quantity_2), to: Quantity.Math
-  defdelegate sub!(quantity_1, quantity_2), to: Quantity.Math
-  defdelegate sum(quantities), to: Quantity.Math
-  defdelegate sum(quantities, exp, unit), to: Quantity.Math
-  defdelegate sum!(quantities), to: Quantity.Math
-  defdelegate sum!(quantities, exp, unit), to: Quantity.Math
-  defdelegate div(dividend, divisor), to: Quantity.Math
+  defdelegate add!(quantity_1, quantity_2), to: Math
+  defdelegate add(quantity_1, quantity_2), to: Math
+  defdelegate div(dividend, divisor), to: Math
+  defdelegate round(quantity, decimals), to: Math
+  defdelegate sub!(quantity_1, quantity_2), to: Math
+  defdelegate sub(quantity_1, quantity_2), to: Math
+  defdelegate sum!(quantities), to: Math
+  defdelegate sum!(quantities, exp, unit), to: Math
+  defdelegate sum(quantities), to: Math
+  defdelegate sum(quantities, exp, unit), to: Math
 
   @doc """
   Builds a new Quantity from a Decimal and a unit
