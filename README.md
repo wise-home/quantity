@@ -15,6 +15,11 @@ A `Quantity` is an Elixir data structure that encapsulates values with units. Th
 ]
 |> Quantity.sum()
 # {:ok, ~Q[30.37 second]}
+
+cost = ~Q[0.40 $/banana]
+amount = ~Q[2000 banana]
+Quantity.mult(cost, amount)
+# ~Q[800.00 $]
 ```
 
 ## Usage
@@ -100,6 +105,27 @@ sales_2018 |> Quantity.sum(-2, "EUR")
 
 sales_2019 |> Quantity.sum(-2, "EUR")
 # {:ok, ~Q[1462.89 EUR]}
+```
+
+#### Multiplication and division
+
+Quantity has support for single-level complex units that are divided or multiplied:
+
+```elixir
+cost = ~Q[20.00 $]
+amount = ~Q[50 banana]
+cost_per_banana = Quantity.div(cost, amount)
+# ~Q[0.40 $/banana]
+
+new_amount = ~Q[2000 banana]
+Quantity.mult(cost_per_banana, new_amount)
+# ~Q[800.00 $]
+
+Quantity.mult(~Q[5 m], ~Q[4.3 m])
+# ~Q[21.5 m*m]
+
+Quantity.mult(~Q[5 m], ~d[20.01])
+# ~Q[100.05 m]
 ```
 
 #### The ~Q and ~d sigils
