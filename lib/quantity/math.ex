@@ -180,6 +180,35 @@ defmodule Quantity.Math do
   end
 
   @doc """
+  Multiply a quantity by a scalar or another quantity
+
+  iex> Quantity.mult(~Q[15 $], ~d[4])
+  ~Q[60 $]
+
+  iex> Quantity.mult(~Q[15 $], ~Q[4 banana])
+  ~Q[60 $*banana]
+
+  iex> Quantity.mult(~Q[15 $/banana], ~Q[4 banana])
+  ~Q[60 $]
+  """
+  @spec mult(Quantity.t(), Quantity.t() | Decimal.t()) :: Quantity.t()
+  def mult(%Quantity{} = quantity, %Decimal{} = scalar) do
+    Quantity.new(Decimal.mult(quantity.value, scalar), quantity.unit)
+  end
+
+  def mult(%Quantity{unit: {:div, unit, common_unit}} = q1, %Quantity{unit: common_unit} = q2) do
+    Quantity.new(Decimal.mult(q1.value, q2.value), unit)
+  end
+
+  def mult(%Quantity{unit: common_unit} = q1, %Quantity{unit: {:div, unit, common_unit}} = q2) do
+    Quantity.new(Decimal.mult(q1.value, q2.value), unit)
+  end
+
+  def mult(%Quantity{} = q1, %Quantity{} = q2) do
+    Quantity.new(Decimal.mult(q1.value, q2.value), {:mult, q1.unit, q2.unit})
+  end
+
+  @doc """
   Round a Quantity to match a precision using the :half_up strategy
 
   iex> Quantity.round(~Q[1.49 DKK], 1)

@@ -20,6 +20,7 @@ defmodule Quantity do
   defdelegate add!(quantity_1, quantity_2), to: Math
   defdelegate add(quantity_1, quantity_2), to: Math
   defdelegate div(dividend, divisor), to: Math
+  defdelegate mult(quantity, quantity_or_scalar), to: Math
   defdelegate round(quantity, decimals), to: Math
   defdelegate sub!(quantity_1, quantity_2), to: Math
   defdelegate sub(quantity_1, quantity_2), to: Math
