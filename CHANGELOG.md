@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+* Add to_zero function, 12
+
 ## 0.3.0
 
 * Div, mult and more features, 8
