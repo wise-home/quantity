@@ -170,6 +170,21 @@ defmodule Quantity do
   def positive?(%{value: value}), do: Decimal.positive?(value)
 
   @doc """
+  Return a quantity with a zero value and the same unit and precision as another Quantity
+
+  iex> ~Q[123.99 EUR] |> Quantity.to_zero()
+  ~Q[0.00 EUR]
+
+  iex> ~Q[1 person] |> Quantity.to_zero()
+  ~Q[0 person]
+
+  iex> ~Q[-123 seconds] |> Quantity.to_zero()
+  ~Q[0 seconds]
+  """
+  @spec to_zero(t) :: t
+  def to_zero(%{unit: unit, value: %Decimal{exp: exp}}), do: Quantity.new(0, exp, unit)
+
+  @doc """
   Extracts the base value from the quantity
   """
   @spec base_value(t) :: integer
