@@ -107,12 +107,7 @@ defmodule Quantity do
   """
   @spec to_string(t) :: String.t()
   def to_string(quantity) do
-    decimal_string =
-      if quantity.value.exp > 0 do
-        Decimal.to_string(quantity.value, :raw)
-      else
-        Decimal.to_string(quantity.value, :normal)
-      end
+    decimal_string = decimal_to_string(quantity.value)
 
     unit_string =
       case quantity.unit do
@@ -122,6 +117,25 @@ defmodule Quantity do
       end
 
     "#{decimal_string} #{unit_string}"
+  end
+
+  @doc """
+  Encodes a decimal as string. Uses either :raw (E-notation) or :normal based on exponent, so that precision is not
+  lost
+
+  iex> Quantity.decimal_to_string(~d[1.234])
+  "1.234"
+
+  iex> Quantity.decimal_to_string(~d[1E3])
+  "1E3"
+  """
+  @spec decimal_to_string(Decimal.t()) :: String.t()
+  def decimal_to_string(%Decimal{} = decimal) do
+    if decimal.exp > 0 do
+      Decimal.to_string(decimal, :raw)
+    else
+      Decimal.to_string(decimal, :normal)
+    end
   end
 
   @doc """
