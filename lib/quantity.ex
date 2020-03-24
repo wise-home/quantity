@@ -242,6 +242,21 @@ defmodule Quantity do
   end
 
   @doc """
+  Compares two quantities with the same unit numerically
+
+  iex> Quantity.compare(~Q[1.00 m], ~Q[2.00 m])
+  :lt
+  iex> Quantity.compare(~Q[1.00 m], ~Q[1 m])
+  :eq
+  iex> Quantity.compare(~Q[3.00 m], ~Q[2.9999999 m])
+  :gt
+  """
+  @spec compare(t, t) :: :lt | :eq | :gt
+  def compare(%{unit: unit} = q1, %{unit: unit} = q2) do
+    Decimal.cmp(q1.value, q2.value)
+  end
+
+  @doc """
   Extracts the base value from the quantity
   """
   @spec base_value(t) :: integer
