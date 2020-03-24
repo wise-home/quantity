@@ -199,6 +199,24 @@ defmodule Quantity do
   def to_zero(%{unit: unit, value: %Decimal{exp: exp}}), do: Quantity.new(0, exp, unit)
 
   @doc """
+  Converts the quantity to have a new unit.
+  The new unit must be a whole 10-exponent more or less than the original unit.
+
+  The exponent given is the difference in exponents (new-exponent - old-exponent).
+  For example when converting from kWh to MWh: 6 (MWh) - 3 (kWh) = 3
+
+  iex> ~Q[1234E3 Wh] |> Quantity.convert_unit("MWh", 6)
+  ~Q[1.234 MWh]
+
+  iex> ~Q[25.2 m] |> Quantity.convert_unit("mm", -3)
+  ~Q[252E2 mm]
+  """
+  @spec convert_unit(t, String.t(), integer) :: t
+  def convert_unit(quantity, new_unit, exponent) do
+    new(Decimal.new(quantity.value.sign, quantity.value.coef, quantity.value.exp - exponent), new_unit)
+  end
+
+  @doc """
   Extracts the base value from the quantity
   """
   @spec base_value(t) :: integer
