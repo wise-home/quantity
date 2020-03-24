@@ -184,6 +184,31 @@ defmodule Quantity do
   def positive?(%{value: value}), do: Decimal.positive?(value)
 
   @doc """
+  Returns true if the two quantities are numerically equal
+
+  iex> Quantity.equals?(~Q[5 bananas], ~Q[5.0 bananas])
+  true
+
+  iex> Quantity.equals?(~Q[5 bananas], ~Q[5 apples])
+  false
+  """
+  @spec equals?(t, t) :: boolean
+  def equals?(q1, q2) do
+    reduce(q1) == reduce(q2)
+  end
+
+  @doc """
+  Reduces the value to the largest possible exponent without altering the numerical value
+
+  iex> Quantity.reduce(~Q[1.200 m])
+  ~Q[1.2 m]
+  """
+  @spec reduce(t) :: t
+  def reduce(quantity) do
+    %{quantity | value: Decimal.reduce(quantity.value)}
+  end
+
+  @doc """
   Return a quantity with a zero value and the same unit and precision as another Quantity
 
   iex> ~Q[123.99 EUR] |> Quantity.to_zero()
