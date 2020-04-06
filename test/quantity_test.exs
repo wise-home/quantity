@@ -9,7 +9,8 @@ defmodule QuantityTest do
       ~Q[0 units],
       ~Q[5 super powers],
       ~Q[42E1 wh],
-      ~Q[10 1/s]
+      ~Q[10 1/s],
+      ~Q[10]
     ]
 
     Enum.each(examples, fn quantity ->
@@ -21,9 +22,14 @@ defmodule QuantityTest do
     end)
   end
 
+  test "parsing with 1 unit" do
+    assert {:ok, quantity} = Quantity.parse("42")
+    assert quantity.unit == 1
+  end
+
   test "parsing 1/unit units" do
     assert {:ok, quantity} = Quantity.parse("1 1/unit")
-    assert quantity.unit == {:div, nil, "unit"}
+    assert quantity.unit == {:div, 1, "unit"}
   end
 
   test "inspecting" do

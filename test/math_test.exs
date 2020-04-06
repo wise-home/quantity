@@ -58,4 +58,38 @@ defmodule Quantity.MathTest do
                ~Q[0.1 banana]
     end
   end
+
+  describe "div" do
+    test "dividing by quantity without unit" do
+      assert Quantity.div(~Q[25 bananas], ~Q[5]) == ~Q[5 bananas]
+    end
+
+    test "dividing by 1/unit" do
+      assert Quantity.div(~Q[25 bananas], ~Q[5 1/s]) == ~Q[5 bananas*s]
+    end
+
+    test "dividing 1 unit with regular quantity" do
+      assert Quantity.div(~Q[25], ~Q[5 bananas]) == ~Q[5 1/bananas]
+    end
+  end
+
+  describe "mult" do
+    test "mutliplying by quantity without unit" do
+      assert Quantity.mult(~Q[12 bananas], ~Q[3]) == ~Q[36 bananas]
+    end
+
+    test "mutliplying by quantity with 1/unit" do
+      assert Quantity.mult(~Q[12 bananas], ~Q[3 1/s]) == ~Q[36 bananas/s]
+    end
+
+    test "mutliplying by quantity with 1/unit that matches" do
+      assert Quantity.mult(~Q[12 s], ~Q[3 1/s]) == ~Q[36]
+      assert Quantity.mult(~Q[12 s*s], ~Q[3 1/s]) == ~Q[36 s]
+      assert Quantity.mult(~Q[12 s/banana], ~Q[3 1/s]) == ~Q[36 1/banana]
+    end
+
+    test "multiplying with inverse unit" do
+      assert Quantity.mult(~Q[12 s/banana], ~Q[3 banana/s]) == ~Q[36]
+    end
+  end
 end

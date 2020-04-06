@@ -10,7 +10,8 @@ defmodule Quantity do
           unit: unit
         }
 
-  @type unit :: String.t() | {:mult, String.t(), String.t()} | {:div, String.t() | nil, String.t()}
+  @type base_unit :: String.t() | 1
+  @type unit :: base_unit | {:div | :mult, base_unit, base_unit}
 
   defstruct [
     :value,
@@ -69,21 +70,39 @@ defmodule Quantity do
   """
   @spec parse(String.t()) :: {:ok, t} | :error
   def parse(input) do
-    with [value_string, unit_string] <- String.split(input, " ", parts: 2),
+    with {:ok, value_string, unit_string} <- parse_split_value_and_unit(input),
          {:ok, value} <- Decimal.parse(value_string) do
-      unit =
-        cond do
-          unit_string =~ ~r[^1/] -> {:div, nil, String.slice(unit_string, 2..-1)}
-          unit_string =~ "/" -> [:div | String.split(unit_string, "/", parts: 2)] |> List.to_tuple()
-          unit_string =~ "*" -> [:mult | String.split(unit_string, "*", parts: 2)] |> List.to_tuple()
-          true -> unit_string
-        end
+      unit = parse_unit(unit_string)
 
       {:ok, new(value, unit)}
     else
       _ -> :error
     end
   end
+
+  defp parse_split_value_and_unit(input) do
+    case String.split(input, " ", parts: 2) do
+      [value] -> {:ok, value, "1"}
+      [value, unit] -> {:ok, value, unit}
+      _ -> :error
+    end
+  end
+
+  defp parse_unit(unit_string) do
+    cond do
+      unit_string =~ "/" ->
+        [:div | unit_string |> String.split("/", parts: 2) |> Enum.map(&parse_base_unit/1)] |> List.to_tuple()
+
+      unit_string =~ "*" ->
+        [:mult | unit_string |> String.split("*", parts: 2) |> Enum.map(&parse_base_unit/1)] |> List.to_tuple()
+
+      true ->
+        parse_base_unit(unit_string)
+    end
+  end
+
+  defp parse_base_unit("1"), do: 1
+  defp parse_base_unit(unit_string), do: unit_string
 
   @doc """
   Same as parse/1, but raises if it could not parse

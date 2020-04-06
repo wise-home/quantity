@@ -3,6 +3,8 @@ defmodule Quantity.Math do
   Functions for doing math with Quantities
   """
 
+  import Kernel, except: [div: 2]
+
   @doc """
   Add two Quantities, keeping the unit
 
@@ -165,20 +167,15 @@ defmodule Quantity.Math do
   ~Q[1.5 $]
 
   iex> Quantity.div(~Q[15 $], ~Q[10 $])
-  ~d[1.5]
+  ~Q[1.5]
   """
-  @spec div(Quantity.t(), Quantity.t() | Decimal.t()) :: Quantity.t() | Decimal.t()
-
-  def div(%Quantity{unit: unit} = q1, %Quantity{unit: unit} = q2) do
-    Decimal.div(q1.value, q2.value)
+  @spec div(Quantity.t(), Quantity.t() | Decimal.t()) :: Quantity.t()
+  def div(%Quantity{} = quantity, %Decimal{} = scalar) do
+    div(quantity, Quantity.new(scalar, 1))
   end
 
   def div(%Quantity{} = q1, %Quantity{} = q2) do
-    Quantity.new(Decimal.div(q1.value, q2.value), {:div, q1.unit, q2.unit})
-  end
-
-  def div(%Quantity{} = quantity, %Decimal{} = scalar) do
-    Quantity.new(Decimal.div(quantity.value, scalar), quantity.unit)
+    Quantity.new(Decimal.div(q1.value, q2.value), reduce_unit({:div, q1.unit, q2.unit}))
   end
 
   @doc """
@@ -188,16 +185,8 @@ defmodule Quantity.Math do
   ~Q[0.1 m³/DKK]
   """
   @spec inverse(Quantity.t()) :: Quantity.t()
-  def inverse(%Quantity{unit: {:div, nil, unit}} = quantity) do
-    Quantity.new(Decimal.div(1, quantity.value), unit)
-  end
-
-  def inverse(%Quantity{unit: {:div, unit_a, unit_b}} = quantity) do
-    Quantity.new(Decimal.div(1, quantity.value), {:div, unit_b, unit_a})
-  end
-
-  def inverse(quantity) do
-    Quantity.new(Decimal.div(1, quantity.value), {:div, nil, quantity.unit})
+  def inverse(%Quantity{} = quantity) do
+    div(Quantity.new(Decimal.new(1), 1), quantity)
   end
 
   @doc """
@@ -214,19 +203,11 @@ defmodule Quantity.Math do
   """
   @spec mult(Quantity.t(), Quantity.t() | Decimal.t()) :: Quantity.t()
   def mult(%Quantity{} = quantity, %Decimal{} = scalar) do
-    Quantity.new(Decimal.mult(quantity.value, scalar), quantity.unit)
-  end
-
-  def mult(%Quantity{unit: {:div, unit, common_unit}} = q1, %Quantity{unit: common_unit} = q2) do
-    Quantity.new(Decimal.mult(q1.value, q2.value), unit)
-  end
-
-  def mult(%Quantity{unit: common_unit} = q1, %Quantity{unit: {:div, unit, common_unit}} = q2) do
-    Quantity.new(Decimal.mult(q1.value, q2.value), unit)
+    mult(quantity, Quantity.new(scalar, 1))
   end
 
   def mult(%Quantity{} = q1, %Quantity{} = q2) do
-    Quantity.new(Decimal.mult(q1.value, q2.value), {:mult, q1.unit, q2.unit})
+    Quantity.new(Decimal.mult(q1.value, q2.value), reduce_unit({:mult, q1.unit, q2.unit}))
   end
 
   @doc """
@@ -241,4 +222,38 @@ defmodule Quantity.Math do
   def round(quantity, decimal_count) do
     Quantity.new(Decimal.round(quantity.value, decimal_count, :half_up), quantity.unit)
   end
+
+  defp reduce_unit({:div, a, a}), do: 1
+  defp reduce_unit({:div, a, 1}), do: a
+  defp reduce_unit({:div, 1, a}) when is_binary(a), do: {:div, 1, a}
+  defp reduce_unit({:div, a, b}) when is_binary(a) and is_binary(b), do: {:div, a, b}
+  defp reduce_unit({:div, a, {:div, a, b}}), do: b
+  defp reduce_unit({:div, a, {:mult, a, b}}), do: {:div, 1, b}
+  defp reduce_unit({:div, a, {:mult, b, a}}), do: {:div, 1, b}
+  defp reduce_unit({:div, 1, {:div, a, b}}), do: {:div, b, a}
+  defp reduce_unit({:div, a, {:div, 1, b}}), do: {:mult, a, b}
+  defp reduce_unit({:div, {:div, a, b}, a}), do: {:div, 1, b}
+  defp reduce_unit({:div, {:mult, a, b}, a}), do: b
+  defp reduce_unit({:div, {:mult, b, a}, a}), do: b
+  defp reduce_unit({:div, {:mult, a, b}, {:div, a, c}}), do: {:mult, b, c}
+  defp reduce_unit({:div, {:mult, b, a}, {:div, a, c}}), do: {:mult, b, c}
+  defp reduce_unit({:div, {:mult, a, b}, {:mult, a, c}}), do: {:div, b, c}
+  defp reduce_unit({:div, {:mult, b, a}, {:mult, a, c}}), do: {:div, b, c}
+  defp reduce_unit({:div, {:mult, a, b}, {:mult, c, a}}), do: {:div, b, c}
+  defp reduce_unit({:div, {:mult, b, a}, {:mult, c, a}}), do: {:div, b, c}
+
+  defp reduce_unit({:mult, a, 1}), do: a
+  defp reduce_unit({:mult, 1, a}), do: a
+  defp reduce_unit({:mult, a, b}) when is_binary(a) and is_binary(b), do: {:mult, a, b}
+  defp reduce_unit({:mult, a, {:div, b, a}}), do: b
+  defp reduce_unit({:mult, {:div, b, a}, a}), do: b
+  defp reduce_unit({:mult, a, {:div, 1, b}}) when is_binary(a), do: {:div, a, b}
+  defp reduce_unit({:mult, {:div, 1, b}, a}) when is_binary(a), do: {:div, a, b}
+  defp reduce_unit({:mult, {:mult, a, b}, {:div, 1, a}}), do: b
+  defp reduce_unit({:mult, {:mult, b, a}, {:div, 1, a}}), do: b
+  defp reduce_unit({:mult, {:div, 1, a}, {:mult, a, b}}), do: b
+  defp reduce_unit({:mult, {:div, 1, a}, {:mult, b, a}}), do: b
+  defp reduce_unit({:mult, {:div, a, b}, {:div, b, a}}), do: 1
+  defp reduce_unit({:mult, {:div, a, b}, {:div, 1, a}}), do: {:div, 1, b}
+  defp reduce_unit({:mult, {:div, 1, a}, {:div, a, b}}), do: {:div, 1, b}
 end
