@@ -8,7 +8,8 @@ defmodule QuantityTest do
       ~Q[65465465465465464.64654654654654654 kw/h],
       ~Q[0 units],
       ~Q[5 super powers],
-      ~Q[42E1 wh]
+      ~Q[42E1 wh],
+      ~Q[10 1/s]
     ]
 
     Enum.each(examples, fn quantity ->
@@ -18,6 +19,11 @@ defmodule QuantityTest do
       assert is_binary(encoded)
       assert parsed == quantity
     end)
+  end
+
+  test "parsing 1/unit units" do
+    assert {:ok, quantity} = Quantity.parse("1 1/unit")
+    assert quantity.unit == {:div, nil, "unit"}
   end
 
   test "inspecting" do

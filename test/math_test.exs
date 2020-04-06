@@ -35,4 +35,27 @@ defmodule Quantity.MathTest do
       assert_raise(ArgumentError, fn -> Quantity.sum!([~Q[123 bananas], ~Q[456 apples]], 0, "apples") end)
     end
   end
+
+  describe "inverse" do
+    test "inverse of a quantity with simple unit" do
+      assert Quantity.inverse(~Q[10 banana]) == ~Q[0.1 1/banana]
+    end
+
+    test "inverse of a quantity with 1/unit" do
+      assert Quantity.inverse(~Q[0.1 1/banana]) == ~Q[1E1 banana]
+    end
+
+    test "inverse of a quantity with div unit" do
+      assert Quantity.inverse(~Q[10 banana/hour]) == ~Q[0.1 hour/banana]
+    end
+
+    test "using 1/unit quantities in other Math functions" do
+      assert ~Q[10 banana]
+             |> Quantity.inverse()
+             |> Quantity.mult(~d[50])
+             |> Quantity.add!(~Q[5 1/banana])
+             |> Quantity.inverse() ==
+               ~Q[0.1 banana]
+    end
+  end
 end

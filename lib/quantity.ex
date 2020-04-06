@@ -10,7 +10,7 @@ defmodule Quantity do
           unit: unit
         }
 
-  @type unit :: String.t() | {:div | :mult, String.t(), String.t()}
+  @type unit :: String.t() | {:mult, String.t(), String.t()} | {:div, String.t() | nil, String.t()}
 
   defstruct [
     :value,
@@ -20,6 +20,7 @@ defmodule Quantity do
   defdelegate add!(quantity_1, quantity_2), to: Math
   defdelegate add(quantity_1, quantity_2), to: Math
   defdelegate div(dividend, divisor), to: Math
+  defdelegate inverse(quantity), to: Math
   defdelegate mult(quantity, quantity_or_scalar), to: Math
   defdelegate round(quantity, decimals), to: Math
   defdelegate sub!(quantity_1, quantity_2), to: Math
@@ -72,6 +73,7 @@ defmodule Quantity do
          {:ok, value} <- Decimal.parse(value_string) do
       unit =
         cond do
+          unit_string =~ ~r[^1/] -> {:div, nil, String.slice(unit_string, 2..-1)}
           unit_string =~ "/" -> [:div | String.split(unit_string, "/", parts: 2)] |> List.to_tuple()
           unit_string =~ "*" -> [:mult | String.split(unit_string, "*", parts: 2)] |> List.to_tuple()
           true -> unit_string
@@ -111,6 +113,7 @@ defmodule Quantity do
 
     unit_string =
       case quantity.unit do
+        {:div, nil, unit} -> "1/#{unit}"
         {:div, u1, u2} -> "#{u1}/#{u2}"
         {:mult, u1, u2} -> "#{u1}*#{u2}"
         unit -> unit

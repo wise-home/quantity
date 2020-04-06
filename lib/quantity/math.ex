@@ -182,6 +182,25 @@ defmodule Quantity.Math do
   end
 
   @doc """
+  Inverse a Quantity, similar to 1/quantity
+
+  iex> Quantity.inverse(~Q[10 DKK/m³])
+  ~Q[0.1 m³/DKK]
+  """
+  @spec inverse(Quantity.t()) :: Quantity.t()
+  def inverse(%Quantity{unit: {:div, nil, unit}} = quantity) do
+    Quantity.new(Decimal.div(1, quantity.value), unit)
+  end
+
+  def inverse(%Quantity{unit: {:div, unit_a, unit_b}} = quantity) do
+    Quantity.new(Decimal.div(1, quantity.value), {:div, unit_b, unit_a})
+  end
+
+  def inverse(quantity) do
+    Quantity.new(Decimal.div(1, quantity.value), {:div, nil, quantity.unit})
+  end
+
+  @doc """
   Multiply a quantity by a scalar or another quantity
 
   iex> Quantity.mult(~Q[15 $], ~d[4])
