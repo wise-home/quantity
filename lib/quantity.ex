@@ -132,13 +132,14 @@ defmodule Quantity do
 
     unit_string =
       case quantity.unit do
-        {:div, nil, unit} -> "1/#{unit}"
-        {:div, u1, u2} -> "#{u1}/#{u2}"
-        {:mult, u1, u2} -> "#{u1}*#{u2}"
-        unit -> unit
+        1 -> ""
+        {:div, nil, unit} -> " 1/#{unit}"
+        {:div, u1, u2} -> " #{u1}/#{u2}"
+        {:mult, u1, u2} -> " #{u1}*#{u2}"
+        unit when is_binary(unit) -> " #{unit}"
       end
 
-    "#{decimal_string} #{unit_string}"
+    "#{decimal_string}#{unit_string}"
   end
 
   @doc """

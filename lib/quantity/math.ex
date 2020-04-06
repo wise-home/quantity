@@ -223,37 +223,55 @@ defmodule Quantity.Math do
     Quantity.new(Decimal.round(quantity.value, decimal_count, :half_up), quantity.unit)
   end
 
-  defp reduce_unit({:div, a, a}), do: 1
-  defp reduce_unit({:div, a, 1}), do: a
-  defp reduce_unit({:div, 1, a}) when is_binary(a), do: {:div, 1, a}
-  defp reduce_unit({:div, a, b}) when is_binary(a) and is_binary(b), do: {:div, a, b}
-  defp reduce_unit({:div, a, {:div, a, b}}), do: b
-  defp reduce_unit({:div, a, {:mult, a, b}}), do: {:div, 1, b}
-  defp reduce_unit({:div, a, {:mult, b, a}}), do: {:div, 1, b}
-  defp reduce_unit({:div, 1, {:div, a, b}}), do: {:div, b, a}
-  defp reduce_unit({:div, a, {:div, 1, b}}), do: {:mult, a, b}
-  defp reduce_unit({:div, {:div, a, b}, a}), do: {:div, 1, b}
-  defp reduce_unit({:div, {:mult, a, b}, a}), do: b
-  defp reduce_unit({:div, {:mult, b, a}, a}), do: b
-  defp reduce_unit({:div, {:mult, a, b}, {:div, a, c}}), do: {:mult, b, c}
-  defp reduce_unit({:div, {:mult, b, a}, {:div, a, c}}), do: {:mult, b, c}
-  defp reduce_unit({:div, {:mult, a, b}, {:mult, a, c}}), do: {:div, b, c}
-  defp reduce_unit({:div, {:mult, b, a}, {:mult, a, c}}), do: {:div, b, c}
-  defp reduce_unit({:div, {:mult, a, b}, {:mult, c, a}}), do: {:div, b, c}
-  defp reduce_unit({:div, {:mult, b, a}, {:mult, c, a}}), do: {:div, b, c}
+  defp reduce_unit(unit) do
+    {numerators, denominators} =
+      unit
+      |> isolate_units({[], []})
+      |> shorten()
 
-  defp reduce_unit({:mult, a, 1}), do: a
-  defp reduce_unit({:mult, 1, a}), do: a
-  defp reduce_unit({:mult, a, b}) when is_binary(a) and is_binary(b), do: {:mult, a, b}
-  defp reduce_unit({:mult, a, {:div, b, a}}), do: b
-  defp reduce_unit({:mult, {:div, b, a}, a}), do: b
-  defp reduce_unit({:mult, a, {:div, 1, b}}) when is_binary(a), do: {:div, a, b}
-  defp reduce_unit({:mult, {:div, 1, b}, a}) when is_binary(a), do: {:div, a, b}
-  defp reduce_unit({:mult, {:mult, a, b}, {:div, 1, a}}), do: b
-  defp reduce_unit({:mult, {:mult, b, a}, {:div, 1, a}}), do: b
-  defp reduce_unit({:mult, {:div, 1, a}, {:mult, a, b}}), do: b
-  defp reduce_unit({:mult, {:div, 1, a}, {:mult, b, a}}), do: b
-  defp reduce_unit({:mult, {:div, a, b}, {:div, b, a}}), do: 1
-  defp reduce_unit({:mult, {:div, a, b}, {:div, 1, a}}), do: {:div, 1, b}
-  defp reduce_unit({:mult, {:div, 1, a}, {:div, a, b}}), do: {:div, 1, b}
+    case {numerators, denominators} do
+      {[], []} -> 1
+      {[a], []} -> a
+      {[], [a]} -> {:div, 1, a}
+      {[a, b], []} -> {:mult, a, b}
+      {[a], [b]} -> {:div, a, b}
+      # Everything below here is not valid, but we try anyway
+      {as, []} -> Enum.reduce(as, &{:mult, &1, &2})
+      {[], bs} -> {:div, 1, Enum.reduce(bs, &{:mult, &1, &2})}
+      {as, bs} -> {:div, Enum.reduce(as, &{:mult, &1, &2}), Enum.reduce(bs, &{:mult, &1, &2})}
+    end
+  end
+
+  defp shorten({numerators, denominators}) do
+    [numerators, denominators] =
+      [numerators, denominators]
+      # Can be replaced with Enum.frequencies/1 when we no longer support Elixir 1.9
+      |> Enum.map(fn list ->
+        list |> Enum.group_by(& &1) |> Enum.into(%{}, fn {unit, count_list} -> {unit, length(count_list)} end)
+      end)
+
+    [numerators, denominators] =
+      numerators
+      |> Map.keys()
+      |> Enum.reduce([numerators, denominators], fn key, [num, den] ->
+        common = min(Map.fetch!(num, key), Map.get(den, key, 0))
+        num = Map.update!(num, key, &(&1 - common))
+        den = Map.update(den, key, 0, &(&1 - common))
+        [num, den]
+      end)
+      |> Enum.map(fn map -> map |> Enum.flat_map(fn {key, count} -> List.duplicate(key, count) end) |> Enum.sort() end)
+
+    {numerators, denominators}
+  end
+
+  # Splits units in nominators and denominators, so they are of the form (a * b * ...) / (c * d * ...)
+  defp isolate_units({:div, a, b}, {acc_n, acc_d}) do
+    {acc_n, acc_d} = isolate_units(a, {acc_n, acc_d})
+    {acc_d, acc_n} = isolate_units(b, {acc_d, acc_n})
+    {acc_n, acc_d}
+  end
+
+  defp isolate_units({:mult, a, b}, acc), do: Enum.reduce([a, b], acc, &isolate_units/2)
+  defp isolate_units(a, {acc_n, acc_d}) when is_binary(a), do: {[a | acc_n], acc_d}
+  defp isolate_units(1, acc), do: acc
 end

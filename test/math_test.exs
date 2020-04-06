@@ -91,5 +91,10 @@ defmodule Quantity.MathTest do
     test "multiplying with inverse unit" do
       assert Quantity.mult(~Q[12 s/banana], ~Q[3 banana/s]) == ~Q[36]
     end
+
+    test "when unit does not produce anything valid, it still returns something" do
+      result = Quantity.mult(~Q[12 apples/s], ~Q[3 bananas/s])
+      assert result.unit == {:div, {:mult, "bananas", "apples"}, {:mult, "s", "s"}}
+    end
   end
 end

@@ -39,4 +39,8 @@ defmodule QuantityTest do
   test "text interpolating" do
     assert "#{~Q[12.45 DKK]}" == "12.45 DKK"
   end
+
+  test "to_string for 1-unit" do
+    assert Quantity.to_string(~Q[42]) == "42"
+  end
 end
