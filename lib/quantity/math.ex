@@ -3,6 +3,8 @@ defmodule Quantity.Math do
   Functions for doing math with Quantities
   """
 
+  import Kernel, except: [div: 2]
+
   @doc """
   Add two Quantities, keeping the unit
 
@@ -165,20 +167,26 @@ defmodule Quantity.Math do
   ~Q[1.5 $]
 
   iex> Quantity.div(~Q[15 $], ~Q[10 $])
-  ~d[1.5]
+  ~Q[1.5]
   """
-  @spec div(Quantity.t(), Quantity.t() | Decimal.t()) :: Quantity.t() | Decimal.t()
-
-  def div(%Quantity{unit: unit} = q1, %Quantity{unit: unit} = q2) do
-    Decimal.div(q1.value, q2.value)
+  @spec div(Quantity.t(), Quantity.t() | Decimal.t()) :: Quantity.t()
+  def div(%Quantity{} = quantity, %Decimal{} = scalar) do
+    div(quantity, Quantity.new(scalar, 1))
   end
 
   def div(%Quantity{} = q1, %Quantity{} = q2) do
     Quantity.new(Decimal.div(q1.value, q2.value), {:div, q1.unit, q2.unit})
   end
 
-  def div(%Quantity{} = quantity, %Decimal{} = scalar) do
-    Quantity.new(Decimal.div(quantity.value, scalar), quantity.unit)
+  @doc """
+  Inverse a Quantity, similar to 1/quantity
+
+  iex> Quantity.inverse(~Q[10 DKK/m³])
+  ~Q[0.1 m³/DKK]
+  """
+  @spec inverse(Quantity.t()) :: Quantity.t()
+  def inverse(%Quantity{} = quantity) do
+    div(Quantity.new(Decimal.new(1), 1), quantity)
   end
 
   @doc """
@@ -195,15 +203,7 @@ defmodule Quantity.Math do
   """
   @spec mult(Quantity.t(), Quantity.t() | Decimal.t()) :: Quantity.t()
   def mult(%Quantity{} = quantity, %Decimal{} = scalar) do
-    Quantity.new(Decimal.mult(quantity.value, scalar), quantity.unit)
-  end
-
-  def mult(%Quantity{unit: {:div, unit, common_unit}} = q1, %Quantity{unit: common_unit} = q2) do
-    Quantity.new(Decimal.mult(q1.value, q2.value), unit)
-  end
-
-  def mult(%Quantity{unit: common_unit} = q1, %Quantity{unit: {:div, unit, common_unit}} = q2) do
-    Quantity.new(Decimal.mult(q1.value, q2.value), unit)
+    mult(quantity, Quantity.new(scalar, 1))
   end
 
   def mult(%Quantity{} = q1, %Quantity{} = q2) do

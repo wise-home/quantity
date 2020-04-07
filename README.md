@@ -44,6 +44,18 @@ Quantity.parse!("15.0 m*m")
 # Quantity.new(~d[15.0], {:mult, "m", "m"})
 ```
 
+Note: When complex units are used, the parse function allows for :div and :mult of the form `a*b*c/d*e*f`, which
+mathematically is interpretted as (a*b*c)/(d*e*f).
+
+```elixir
+~Q[1 a*b*c/d*e*f].unit
+# {:div, {:mult, "a", {:mult, "b", "c"}}, {:mult, "d", {:mult, "e", "f"}}}
+```
+
+Quantity supports unit-less quantities, which acts as decimals. Technically they have the unit `1`
+~Q[42].unit
+# 1
+
 The `Quantity` module also has `new/2` which creates a `Quantity` from a `Decimal.t()` and a `String.t()`:
 
 ```elixir
@@ -117,13 +129,16 @@ sales_2019 |> Quantity.sum(-2, "EUR")
 
 #### Multiplication and division
 
-Quantity has support for single-level complex units that are divided or multiplied:
+Quantity has support for arbitrary complex units with :div and :mult
 
 ```elixir
 cost = ~Q[20.00 $]
 amount = ~Q[50 banana]
 cost_per_banana = Quantity.div(cost, amount)
 # ~Q[0.40 $/banana]
+
+Quantity.div(~Q[50 bananas], ~Q[5 bananas])
+# ~Q[10]
 
 new_amount = ~Q[2000 banana]
 Quantity.mult(cost_per_banana, new_amount)
@@ -134,6 +149,9 @@ Quantity.mult(~Q[5 m], ~Q[4.3 m])
 
 Quantity.mult(~Q[5 m], ~d[20.01])
 # ~Q[100.05 m]
+
+Quantity.mult(~Q[10 m/s*s], ~Q[5 s])
+# ~Q[50 m/s]
 ```
 
 #### The ~Q and ~d sigils

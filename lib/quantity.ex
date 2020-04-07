@@ -10,7 +10,8 @@ defmodule Quantity do
           unit: unit
         }
 
-  @type unit :: String.t() | {:div | :mult, String.t(), String.t()}
+  @type base_unit :: String.t() | 1
+  @type unit :: base_unit | {:div | :mult, base_unit, base_unit}
 
   defstruct [
     :value,
@@ -20,6 +21,7 @@ defmodule Quantity do
   defdelegate add!(quantity_1, quantity_2), to: Math
   defdelegate add(quantity_1, quantity_2), to: Math
   defdelegate div(dividend, divisor), to: Math
+  defdelegate inverse(quantity), to: Math
   defdelegate mult(quantity, quantity_or_scalar), to: Math
   defdelegate round(quantity, decimals), to: Math
   defdelegate sub!(quantity_1, quantity_2), to: Math
@@ -34,6 +36,8 @@ defmodule Quantity do
   """
   @spec new(Decimal.t(), unit) :: t
   def new(value, unit) do
+    unit = normalize_unit(unit)
+
     %__MODULE__{
       value: value,
       unit: unit
@@ -68,20 +72,41 @@ defmodule Quantity do
   """
   @spec parse(String.t()) :: {:ok, t} | :error
   def parse(input) do
-    with [value_string, unit_string] <- String.split(input, " ", parts: 2),
+    with {:ok, value_string, unit_string} <- parse_split_value_and_unit(input),
          {:ok, value} <- Decimal.parse(value_string) do
-      unit =
-        cond do
-          unit_string =~ "/" -> [:div | String.split(unit_string, "/", parts: 2)] |> List.to_tuple()
-          unit_string =~ "*" -> [:mult | String.split(unit_string, "*", parts: 2)] |> List.to_tuple()
-          true -> unit_string
-        end
+      unit = parse_unit(unit_string)
 
       {:ok, new(value, unit)}
     else
       _ -> :error
     end
   end
+
+  defp parse_split_value_and_unit(input) do
+    case String.split(input, " ", parts: 2) do
+      [value] -> {:ok, value, "1"}
+      [value, unit] -> {:ok, value, unit}
+      _ -> :error
+    end
+  end
+
+  defp parse_unit(unit_string) do
+    if unit_string =~ "/" do
+      [:div | unit_string |> String.split("/", parts: 2) |> Enum.map(&parse_mult_unit/1)] |> List.to_tuple()
+    else
+      parse_mult_unit(unit_string)
+    end
+  end
+
+  defp parse_mult_unit(unit_string) do
+    unit_string
+    |> String.split("*")
+    |> Enum.map(&parse_base_unit/1)
+    |> Enum.reduce(&{:mult, &1, &2})
+  end
+
+  defp parse_base_unit("1"), do: 1
+  defp parse_base_unit(unit_string), do: unit_string
 
   @doc """
   Same as parse/1, but raises if it could not parse
@@ -111,13 +136,17 @@ defmodule Quantity do
 
     unit_string =
       case quantity.unit do
-        {:div, u1, u2} -> "#{u1}/#{u2}"
-        {:mult, u1, u2} -> "#{u1}*#{u2}"
-        unit -> unit
+        1 -> ""
+        unit -> " #{unit_to_string(unit)}"
       end
 
-    "#{decimal_string} #{unit_string}"
+    "#{decimal_string}#{unit_string}"
   end
+
+  defp unit_to_string(1), do: "1"
+  defp unit_to_string(unit) when is_binary(unit), do: unit
+  defp unit_to_string({:div, a, b}), do: "#{unit_to_string(a)}/#{unit_to_string(b)}"
+  defp unit_to_string({:mult, a, b}), do: "#{unit_to_string(a)}*#{unit_to_string(b)}"
 
   @doc """
   Encodes a decimal as string. Uses either :raw (E-notation) or :normal based on exponent, so that precision is not
@@ -269,6 +298,15 @@ defmodule Quantity do
   def exponent(quantity), do: quantity.value.exp
 
   @doc """
+  Converts a 1-unit quantity to a decimal. If the quantity does not represent a decimal (a unit other than 1) it fails.
+
+  iex> Quantity.to_decimal!(~Q[42])
+  ~d[42]
+  """
+  @spec to_decimal!(t) :: Decimal.t()
+  def to_decimal!(%{unit: 1} = quantity), do: quantity.value
+
+  @doc """
   Extracts the unit from the quantity
   """
   @spec unit(t) :: unit
@@ -285,4 +323,63 @@ defmodule Quantity do
       "~Q[#{@for.to_string(quantity)}]"
     end
   end
+
+  # Normalizes unit to a standard form:
+  # * Shorten unit as much as possible
+  # * At most one :div (with possibly many :mults on each side)
+  # * All :mult units are sorted
+  # * Extra 1-units are removed
+  defp normalize_unit(unit) do
+    [numerators, denominators] =
+      unit
+      |> isolate_units([[], []])
+      |> shorten()
+      |> Enum.map(&Enum.sort/1)
+
+    case {numerators, denominators} do
+      {[], []} -> 1
+      {nums, []} -> reduce_mults(nums)
+      {[], dens} -> {:div, 1, reduce_mults(dens)}
+      {nums, dens} -> {:div, reduce_mults(nums), reduce_mults(dens)}
+    end
+  end
+
+  defp reduce_mults(units) do
+    units
+    |> Enum.reverse()
+    |> Enum.reduce(&{:mult, &1, &2})
+  end
+
+  # Remove common elements in numerator and denominator
+  defp shorten([numerators, denominators]) do
+    [numerators, denominators] =
+      [numerators, denominators]
+      # Can be replaced with Enum.frequencies/1 when we no longer support Elixir 1.9
+      |> Enum.map(fn list ->
+        list |> Enum.group_by(& &1) |> Enum.into(%{}, fn {unit, count_list} -> {unit, length(count_list)} end)
+      end)
+
+    numerators
+    |> Map.keys()
+    |> Enum.reduce([numerators, denominators], fn key, [num, den] ->
+      common = min(Map.fetch!(num, key), Map.get(den, key, 0))
+      num = Map.update!(num, key, &(&1 - common))
+      den = Map.update(den, key, 0, &(&1 - common))
+      [num, den]
+    end)
+    |> Enum.map(fn map ->
+      map |> Enum.flat_map(fn {key, count} -> List.duplicate(key, count) end)
+    end)
+  end
+
+  # Splits units in numerators and denominators, so they are of the form (a * b * ...) / (c * d * ...)
+  defp isolate_units({:div, a, b}, [acc_n, acc_d]) do
+    [acc_n, acc_d] = isolate_units(a, [acc_n, acc_d])
+    [acc_d, acc_n] = isolate_units(b, [acc_d, acc_n])
+    [acc_n, acc_d]
+  end
+
+  defp isolate_units({:mult, a, b}, acc), do: Enum.reduce([a, b], acc, &isolate_units/2)
+  defp isolate_units(a, [acc_n, acc_d]) when is_binary(a), do: [[a | acc_n], acc_d]
+  defp isolate_units(1, acc), do: acc
 end
