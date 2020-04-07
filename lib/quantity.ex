@@ -292,6 +292,15 @@ defmodule Quantity do
   def exponent(quantity), do: quantity.value.exp
 
   @doc """
+  Converts a 1-unit quantity to a decimal. If the quantity does not represent a decimal (a unit other than 1) it fails.
+
+  iex> Quantity.to_decimal!(~Q[42])
+  ~d[42]
+  """
+  @spec to_decimal!(t) :: Decimal.t()
+  def to_decimal!(%{unit: 1} = quantity), do: quantity.value
+
+  @doc """
   Extracts the unit from the quantity
   """
   @spec unit(t) :: unit
