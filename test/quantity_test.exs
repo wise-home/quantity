@@ -4,21 +4,22 @@ defmodule QuantityTest do
 
   test "parsing and encoding" do
     examples = [
-      ~Q[12.45 DKK],
-      ~Q[65465465465465464.64654654654654654 kw/h],
-      ~Q[0 units],
-      ~Q[5 super powers],
-      ~Q[42E1 wh],
-      ~Q[10 1/s],
-      ~Q[10]
+      "12.45 DKK",
+      "65465465465465464.64654654654654654 kw/h",
+      "0 units",
+      "5 super powers",
+      "42E1 wh",
+      "10 1/s",
+      "10",
+      "1 a*b*c/d*e*f",
+      "1 a*b"
     ]
 
-    Enum.each(examples, fn quantity ->
-      encoded = Quantity.to_string(quantity)
-      {:ok, parsed} = Quantity.parse(encoded)
+    Enum.each(examples, fn input ->
+      {:ok, parsed} = Quantity.parse(input)
+      encoded = Quantity.to_string(parsed)
 
-      assert is_binary(encoded)
-      assert parsed == quantity
+      assert encoded == input
     end)
   end
 
@@ -30,6 +31,12 @@ defmodule QuantityTest do
   test "parsing 1/unit units" do
     assert {:ok, quantity} = Quantity.parse("1 1/unit")
     assert quantity.unit == {:div, 1, "unit"}
+  end
+
+  test "complex unit" do
+    assert {:ok, quantity} = Quantity.parse("1 a*b*c/d*e*f")
+    assert quantity.unit == {:div, {:mult, "a", {:mult, "b", "c"}}, {:mult, "d", {:mult, "e", "f"}}}
+    assert Quantity.to_string(quantity) == "1 a*b*c/d*e*f"
   end
 
   test "inspecting" do

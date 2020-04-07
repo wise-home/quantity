@@ -74,15 +74,15 @@ defmodule Quantity.MathTest do
   end
 
   describe "mult" do
-    test "mutliplying by quantity without unit" do
+    test "multiplying by quantity without unit" do
       assert Quantity.mult(~Q[12 bananas], ~Q[3]) == ~Q[36 bananas]
     end
 
-    test "mutliplying by quantity with 1/unit" do
+    test "multiplying by quantity with 1/unit" do
       assert Quantity.mult(~Q[12 bananas], ~Q[3 1/s]) == ~Q[36 bananas/s]
     end
 
-    test "mutliplying by quantity with 1/unit that matches" do
+    test "multiplying by quantity with 1/unit that matches" do
       assert Quantity.mult(~Q[12 s], ~Q[3 1/s]) == ~Q[36]
       assert Quantity.mult(~Q[12 s*s], ~Q[3 1/s]) == ~Q[36 s]
       assert Quantity.mult(~Q[12 s/banana], ~Q[3 1/s]) == ~Q[36 1/banana]
@@ -92,9 +92,32 @@ defmodule Quantity.MathTest do
       assert Quantity.mult(~Q[12 s/banana], ~Q[3 banana/s]) == ~Q[36]
     end
 
-    test "when unit does not produce anything valid, it still returns something" do
-      result = Quantity.mult(~Q[12 apples/s], ~Q[3 bananas/s])
-      assert result.unit == {:div, {:mult, "bananas", "apples"}, {:mult, "s", "s"}}
+    test "multiplying to complex result" do
+      assert Quantity.mult(~Q[12 apples/s], ~Q[3 bananas/s]) == ~Q[36 apples*bananas/s*s]
     end
+  end
+
+  test "complex units" do
+    amount = ~Q[5000 banana]
+    rate = ~Q[5 banana/s]
+    rent = ~Q[0.50 USD/s]
+    earnings = ~Q[20 USD/hour]
+    work_time = ~Q[37 hour/week]
+
+    # Order doesn't matter
+    assert amount
+           |> Quantity.div(rate)
+           |> Quantity.mult(rent)
+           |> Quantity.div(earnings)
+           |> Quantity.div(work_time)
+           |> Quantity.round(2) == ~Q[0.68 week]
+
+    assert amount
+           |> Quantity.mult(rent)
+           # This will be in the unit "USD*banana*week/hour*s" :)
+           |> Quantity.div(work_time)
+           |> Quantity.div(rate)
+           |> Quantity.div(earnings)
+           |> Quantity.round(2) == ~Q[0.68 week]
   end
 end

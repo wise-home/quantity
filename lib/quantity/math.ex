@@ -175,7 +175,7 @@ defmodule Quantity.Math do
   end
 
   def div(%Quantity{} = q1, %Quantity{} = q2) do
-    Quantity.new(Decimal.div(q1.value, q2.value), reduce_unit({:div, q1.unit, q2.unit}))
+    Quantity.new(Decimal.div(q1.value, q2.value), {:div, q1.unit, q2.unit})
   end
 
   @doc """
@@ -207,7 +207,7 @@ defmodule Quantity.Math do
   end
 
   def mult(%Quantity{} = q1, %Quantity{} = q2) do
-    Quantity.new(Decimal.mult(q1.value, q2.value), reduce_unit({:mult, q1.unit, q2.unit}))
+    Quantity.new(Decimal.mult(q1.value, q2.value), {:mult, q1.unit, q2.unit})
   end
 
   @doc """
@@ -222,56 +222,4 @@ defmodule Quantity.Math do
   def round(quantity, decimal_count) do
     Quantity.new(Decimal.round(quantity.value, decimal_count, :half_up), quantity.unit)
   end
-
-  defp reduce_unit(unit) do
-    {numerators, denominators} =
-      unit
-      |> isolate_units({[], []})
-      |> shorten()
-
-    case {numerators, denominators} do
-      {[], []} -> 1
-      {[a], []} -> a
-      {[], [a]} -> {:div, 1, a}
-      {[a, b], []} -> {:mult, a, b}
-      {[a], [b]} -> {:div, a, b}
-      # Everything below here is not valid, but we try anyway
-      {as, []} -> Enum.reduce(as, &{:mult, &1, &2})
-      {[], bs} -> {:div, 1, Enum.reduce(bs, &{:mult, &1, &2})}
-      {as, bs} -> {:div, Enum.reduce(as, &{:mult, &1, &2}), Enum.reduce(bs, &{:mult, &1, &2})}
-    end
-  end
-
-  defp shorten({numerators, denominators}) do
-    [numerators, denominators] =
-      [numerators, denominators]
-      # Can be replaced with Enum.frequencies/1 when we no longer support Elixir 1.9
-      |> Enum.map(fn list ->
-        list |> Enum.group_by(& &1) |> Enum.into(%{}, fn {unit, count_list} -> {unit, length(count_list)} end)
-      end)
-
-    [numerators, denominators] =
-      numerators
-      |> Map.keys()
-      |> Enum.reduce([numerators, denominators], fn key, [num, den] ->
-        common = min(Map.fetch!(num, key), Map.get(den, key, 0))
-        num = Map.update!(num, key, &(&1 - common))
-        den = Map.update(den, key, 0, &(&1 - common))
-        [num, den]
-      end)
-      |> Enum.map(fn map -> map |> Enum.flat_map(fn {key, count} -> List.duplicate(key, count) end) |> Enum.sort() end)
-
-    {numerators, denominators}
-  end
-
-  # Splits units in nominators and denominators, so they are of the form (a * b * ...) / (c * d * ...)
-  defp isolate_units({:div, a, b}, {acc_n, acc_d}) do
-    {acc_n, acc_d} = isolate_units(a, {acc_n, acc_d})
-    {acc_d, acc_n} = isolate_units(b, {acc_d, acc_n})
-    {acc_n, acc_d}
-  end
-
-  defp isolate_units({:mult, a, b}, acc), do: Enum.reduce([a, b], acc, &isolate_units/2)
-  defp isolate_units(a, {acc_n, acc_d}) when is_binary(a), do: {[a | acc_n], acc_d}
-  defp isolate_units(1, acc), do: acc
 end
