@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.5.1 - 2020-04-07
+
+* Fix type spec of unit to be recursive
 
 ## 0.5.0 - 2020-04-07
 
