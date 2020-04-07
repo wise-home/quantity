@@ -1,5 +1,19 @@
 # Changelog
 
+
+## 0.5.0 - 2020-04-07
+
+**Backwards incompatibility**: With the introduction of a `1` unit, `Quantity.div/2` now always returns a Quantity,
+also when the result is a scalar. In that case it will be a Quantity with the unit `1`.
+
+* Add support for arbitrary complex units
+* Added to_decimal/1 convinience function
+* Generalize reduce_unit/1
+* Introduce `1` unit
+* Add Quantity.inverse/1
+* Update makeup 1.0.0 -> 1.0.1
+* Update credo 1.3.1 -> 1.3.2
+
 ## 0.4.0 - 2020-03-24
 
 * `compare/2` (only for same unit)
