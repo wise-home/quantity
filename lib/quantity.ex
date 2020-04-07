@@ -10,8 +10,8 @@ defmodule Quantity do
           unit: unit
         }
 
+  @type unit :: base_unit | {:div | :mult, unit, unit}
   @type base_unit :: String.t() | 1
-  @type unit :: base_unit | {:div | :mult, base_unit, base_unit}
 
   defstruct [
     :value,
