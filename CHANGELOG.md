@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.5.2 - 2020-09-21
+
+Code changes:
+
+* Change Decimal.reduce -> Decimal.normalize (the functions are identical), 29
+
+Dependency changes:
+
+* Update decimal to 1.9.0, 29
+* Update ex_doc to 0.22.6, 29
+* Update to credo 1.4.0, 24
+* Update to earmark 1.4.10, 27
+* Update to elixir 1.4.10, 27
+* Update to erlang 23.0.4, 29
+* Update to jason 1.2.1, 24
+* Speed up testing on GitHub Actions
+
 ## 0.5.1 - 2020-04-07
 
 * Fix type spec of unit to be recursive
