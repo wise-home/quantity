@@ -234,7 +234,7 @@ defmodule Quantity do
   """
   @spec reduce(t) :: t
   def reduce(quantity) do
-    %{quantity | value: Decimal.reduce(quantity.value)}
+    %{quantity | value: Decimal.normalize(quantity.value)}
   end
 
   @doc """
