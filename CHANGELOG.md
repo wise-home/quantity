@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.3 - 2020-09-21
+
+* Fix required Decimal version in mix.exs
+* Fix wrong jason version specified in CHANGELOG for version 0.5.2
+
 ## 0.5.2 - 2020-09-21
 
 Code changes:
@@ -14,7 +19,7 @@ Dependency changes:
 * Update to earmark 1.4.10, 27
 * Update to elixir 1.4.10, 27
 * Update to erlang 23.0.4, 29
-* Update to jason 1.2.1, 24
+* Update to jason 1.2.2, 29
 * Speed up testing on GitHub Actions
 
 ## 0.5.1 - 2020-04-07
