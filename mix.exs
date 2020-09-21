@@ -35,7 +35,7 @@ defmodule Quantity.MixProject do
   defp deps do
     [
       # Decimal
-      {:decimal, "~> 1.0"},
+      {:decimal, "~> 1.9"},
 
       # Documentation
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
