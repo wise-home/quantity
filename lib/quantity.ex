@@ -73,7 +73,7 @@ defmodule Quantity do
   @spec parse(String.t()) :: {:ok, t} | :error
   def parse(input) do
     with {:ok, value_string, unit_string} <- parse_split_value_and_unit(input),
-         {:ok, value} <- Decimal.parse(value_string) do
+         {value, ""} <- Decimal.parse(value_string) do
       unit = parse_unit(unit_string)
 
       {:ok, new(value, unit)}
@@ -282,7 +282,7 @@ defmodule Quantity do
   """
   @spec compare(t, t) :: :lt | :eq | :gt
   def compare(%{unit: unit} = q1, %{unit: unit} = q2) do
-    Decimal.cmp(q1.value, q2.value)
+    Decimal.compare(q1.value, q2.value)
   end
 
   @doc """
