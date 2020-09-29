@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0 - 2020-09-29
+
+* Update decimal 1.9.0 -> 2.0.0, 31
+
 ## 0.5.3 - 2020-09-21
 
 * Fix required Decimal version in mix.exs
