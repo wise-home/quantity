@@ -163,13 +163,20 @@ defmodule Quantity.Math do
   iex> Quantity.div(~Q[15 $], ~Q[10 banana])
   ~Q[1.5 $/banana]
 
-  iex> Quantity.div(~Q[15 $], ~d[10])
+  iex> Quantity.div(~Q[15 $], ~d[7.5])
+  ~Q[2 $]
+
+  iex> Quantity.div(~Q[15 $], 10)
   ~Q[1.5 $]
 
   iex> Quantity.div(~Q[15 $], ~Q[10 $])
   ~Q[1.5]
   """
-  @spec div(Quantity.t(), Quantity.t() | Decimal.t()) :: Quantity.t()
+  @spec div(Quantity.t(), Quantity.t() | Decimal.t() | integer) :: Quantity.t()
+  def div(%Quantity{} = quantity, scalar) when is_integer(scalar) do
+    div(quantity, Quantity.new(scalar, 0, 1))
+  end
+
   def div(%Quantity{} = quantity, %Decimal{} = scalar) do
     div(quantity, Quantity.new(scalar, 1))
   end
@@ -192,7 +199,10 @@ defmodule Quantity.Math do
   @doc """
   Multiply a quantity by a scalar or another quantity
 
-  iex> Quantity.mult(~Q[15 $], ~d[4])
+  iex> Quantity.mult(~Q[15 $], ~d[4.5])
+  ~Q[67.5 $]
+
+  iex> Quantity.mult(~Q[15 $], 4)
   ~Q[60 $]
 
   iex> Quantity.mult(~Q[15 $], ~Q[4 banana])
@@ -201,7 +211,11 @@ defmodule Quantity.Math do
   iex> Quantity.mult(~Q[15 $/banana], ~Q[4 banana])
   ~Q[60 $]
   """
-  @spec mult(Quantity.t(), Quantity.t() | Decimal.t()) :: Quantity.t()
+  @spec mult(Quantity.t(), Quantity.t() | Decimal.t() | integer) :: Quantity.t()
+  def mult(%Quantity{} = quantity, scalar) when is_integer(scalar) do
+    mult(quantity, Quantity.new(scalar, 0, 1))
+  end
+
   def mult(%Quantity{} = quantity, %Decimal{} = scalar) do
     mult(quantity, Quantity.new(scalar, 1))
   end
