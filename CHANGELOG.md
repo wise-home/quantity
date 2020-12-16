@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.6.1 - 2020-12-16
+
+### Enhancements:
+
+* Add integer option as the second param to div and mult
+
+### Deps updates (no runtime deps here):
+
+* Update credo 1.4.0 -> 1.5.3
+* Update erlang 23.0.4 -> 23.2
+* Update earmark_parser 1.4.10 -> 1.4.12
+* Update file_system 0.2.9 -> 0.2.10
+* Update elixir 1.10.4 -> 1.11.2
+* Update ex_doc 0.22.6 -> 0.23.0
+* Update makeup_elixir 0.14.1 -> 0.15.0
+* Update makeup 1.0.3 -> 1.0.5, nimble_parsec 0.6.0 -> 1.1.0
+
 ## 0.6.0 - 2020-09-29
 
 * Update decimal 1.9.0 -> 2.0.0, 31
