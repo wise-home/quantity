@@ -197,7 +197,7 @@ Underneath, a `Quantity` is simply a map consisting of `value` and `unit`, where
 
 Quantity will be tested against the two latest minor versions of Elixir (but >= 1.9) and the three latest minor versions of Erlang. In all cases the latest patch version is used.
 
-E.g. if the latest Elixir is 1.11.2 and the latest Erlang is 23.2.1, we test against:
+E.g. if the latest Elixir is 1.11.3 and the latest Erlang is 23.2.3, we test against:
 
-    Elixir: 1.10.4, 1.11.2
-    Erlang: 23.0.4, 23.1.5, 23.2.1
+    Elixir: 1.10.4, 1.11.3
+    Erlang: 23.0.4, 23.1.5, 23.2.3
