@@ -116,6 +116,9 @@ defmodule Quantity.Math do
   iex> sum([], -2, "DKK")
   {:ok, ~Q[0.00 DKK]}
 
+  iex> sum([~Q[1 EUR], ~Q[2 EUR]], -1, "DKK")
+  {:ok, ~Q[3 EUR]}
+
   iex> sum([~Q[1 EUR], ~Q[2 DKK]], -2, "EUR")
   :error
   """
@@ -148,6 +151,9 @@ defmodule Quantity.Math do
 
   iex> sum!([], -2, "DKK")
   ~Q[0.00 DKK]
+
+  iex> sum!([~Q[1 apples], ~Q[2 apples]], -2, "pears")
+  ~Q[3 apples]
   """
   @spec sum!([Quantity.t()], integer, String.t()) :: Quantity.t()
   def sum!(quantities, exp, unit) do
