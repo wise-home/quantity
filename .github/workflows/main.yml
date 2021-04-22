@@ -40,7 +40,7 @@ jobs:
 
       - run: mix deps.get
       - run: mix compile
-      - run: mix test --trace
+      - run: mix test --trace --include skip
       - run: mix credo
       - run: mix dialyzer
       - run: mix format --check-formatted
