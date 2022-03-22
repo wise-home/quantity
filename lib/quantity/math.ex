@@ -242,4 +242,18 @@ defmodule Quantity.Math do
   def round(quantity, decimal_count) do
     Quantity.new(Decimal.round(quantity.value, decimal_count, :half_up), quantity.unit)
   end
+
+  @doc """
+  Return the absolute value of the Quantity
+
+  iex> Quantity.abs(~Q[-100.0 L])
+  ~Q[100.0 L]
+
+  iex> Quantity.abs(~Q[100.0 L])
+  ~Q[100.0 L]
+  """
+  @spec abs(Quantity.t()) :: Quantity.t()
+  def abs(quantity) do
+    Quantity.new(Decimal.abs(quantity.value), quantity.unit)
+  end
 end
