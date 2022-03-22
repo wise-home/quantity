@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.7.0 2022-03-22
+
+### New features ans enhancements:
+
+* Add Quantity.abs/1
+* quantity/math: Add clarifying example about unit in sum/3 (origin/nijo/add-clarifying-example-about-sum)
+
+### Deps updates
+
+* update erlang 23.2 -> 24.3.2
+* update elixir 1.11.2 -> 1.13.3
+* update ex_docs 0.25.3 -> 0.28.2
+* update makeup_elixir 0.15.0 -> 0.16.0
+* update makeup 1.0.5 -> 1.1.0
+* update nimble_parsec 1.1.0 -> 1.2.3
+* update earmark_parser 1.4.16 -> 1.4.24
+* update credo 1.5.3 -> 1.6.4
+* update jason 1.2.2 -> 1.3.0
+* update dialyxir 1.0.0 -> 1.1.0
+* Update ex_doc 0.23.0 -> 0.24.2
+
 ## 0.6.1 - 2020-12-16
 
 ### Enhancements:
