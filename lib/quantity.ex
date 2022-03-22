@@ -30,6 +30,7 @@ defmodule Quantity do
   defdelegate sum!(quantities, exp, unit), to: Math
   defdelegate sum(quantities), to: Math
   defdelegate sum(quantities, exp, unit), to: Math
+  defdelegate abs(quantity), to: Math
 
   @doc """
   Builds a new Quantity from a Decimal and a unit
@@ -50,7 +51,7 @@ defmodule Quantity do
   @spec new(integer, integer, unit) :: t
   def new(base_value, exponent, unit) do
     sign = if base_value < 0, do: -1, else: 1
-    positive_base_value = abs(base_value)
+    positive_base_value = Kernel.abs(base_value)
     value = Decimal.new(sign, positive_base_value, exponent)
     new(value, unit)
   end
