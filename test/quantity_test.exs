@@ -33,6 +33,10 @@ defmodule QuantityTest do
     assert quantity.unit == {:div, 1, "unit"}
   end
 
+  test "parsing non-number decimal" do
+    assert Quantity.parse("inf bananas") == :error
+  end
+
   test "complex unit" do
     assert {:ok, quantity} = Quantity.parse("1 a*b*c/d*e*f")
     assert quantity.unit == {:div, {:mult, "a", {:mult, "b", "c"}}, {:mult, "d", {:mult, "e", "f"}}}
@@ -49,5 +53,17 @@ defmodule QuantityTest do
 
   test "to_string for 1-unit" do
     assert Quantity.to_string(~Q[42]) == "42"
+  end
+
+  test "for non-number decimals" do
+    ["inf", "-inf", "nan"]
+    |> Enum.each(fn not_number ->
+      catch_error(not_number |> Decimal.new() |> Quantity.new("unit"))
+    end)
+  end
+
+  test "try_new" do
+    assert Quantity.try_new(~d[1], "banana") == {:ok, ~Q[1 banana]}
+    assert Quantity.try_new(~d[inf], "banana") == {:error, "Infinity not supported by Quantity"}
   end
 end
