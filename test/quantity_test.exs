@@ -57,4 +57,9 @@ defmodule QuantityTest do
       catch_error(not_number |> Decimal.new() |> Quantity.new("unit"))
     end)
   end
+
+  test "try_new" do
+    assert Quantity.try_new(~d[1], "banana") == {:ok, ~Q[1 banana]}
+    assert Quantity.try_new(~d[inf], "banana") == {:error, "Infinity not supported by Quantity"}
+  end
 end

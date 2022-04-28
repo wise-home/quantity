@@ -37,20 +37,9 @@ defmodule Quantity do
   """
   @spec new(Decimal.t(), unit) :: t
   def new(value, unit) do
-    cond do
-      Decimal.inf?(value) ->
-        raise ArgumentError, "Infinity not supported by Quantity"
-
-      Decimal.nan?(value) ->
-        raise ArgumentError, "NaN not supported by quantity"
-
-      true ->
-        unit = normalize_unit(unit)
-
-        %__MODULE__{
-          value: value,
-          unit: unit
-        }
+    case try_new(value, unit) do
+      {:ok, quantity} -> quantity
+      {:error, reason} -> raise ArgumentError, reason
     end
   end
 
@@ -63,6 +52,31 @@ defmodule Quantity do
     positive_base_value = Kernel.abs(base_value)
     value = Decimal.new(sign, positive_base_value, exponent)
     new(value, unit)
+  end
+
+  @doc """
+  Tries to create a new Quantity. If it fails because of infinity or NaN decimal, will return an error tuple.
+  This could be used instead of new/2 when creating a Quantity from user input or other thirdparty input.
+  """
+  @spec try_new(Decimal.t(), unit) :: {:ok, t()} | {:error, reason :: String.t()}
+  def try_new(value, unit) do
+    cond do
+      Decimal.inf?(value) ->
+        {:error, "Infinity not supported by Quantity"}
+
+      Decimal.nan?(value) ->
+        {:error, "NaN not supported by Quantity"}
+
+      true ->
+        unit = normalize_unit(unit)
+
+        quantity = %__MODULE__{
+          value: value,
+          unit: unit
+        }
+
+        {:ok, quantity}
+    end
   end
 
   @doc """
