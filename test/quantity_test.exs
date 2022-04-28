@@ -33,6 +33,10 @@ defmodule QuantityTest do
     assert quantity.unit == {:div, 1, "unit"}
   end
 
+  test "parsing non-number decimal" do
+    assert Quantity.parse("inf bananas") == :error
+  end
+
   test "complex unit" do
     assert {:ok, quantity} = Quantity.parse("1 a*b*c/d*e*f")
     assert quantity.unit == {:div, {:mult, "a", {:mult, "b", "c"}}, {:mult, "d", {:mult, "e", "f"}}}

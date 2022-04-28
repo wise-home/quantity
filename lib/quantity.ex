@@ -100,7 +100,10 @@ defmodule Quantity do
          {value, ""} <- Decimal.parse(value_string) do
       unit = parse_unit(unit_string)
 
-      {:ok, new(value, unit)}
+      case try_new(value, unit) do
+        {:ok, quantity} -> {:ok, quantity}
+        {:error, _reason} -> :error
+      end
     else
       _ -> :error
     end
