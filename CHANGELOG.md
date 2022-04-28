@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.0 2022-04-28
+
+* Breaking change: Quantity no longer accepts infinity and NaN decimal values
+* New: Added try_new/2 function for error handling infinity and NaN decimal values
+
+Dev deps updates:
+
+* Update erlang 24.3.2 -> 24.3.3
+* Update ex_doc 0.28.2 -> 0.28.3
+* Update earmark_parser 1.4.24 -> 1.4.25
+
 ## 0.7.0 2022-03-22
 
 ### New features ans enhancements:
