@@ -50,4 +50,11 @@ defmodule QuantityTest do
   test "to_string for 1-unit" do
     assert Quantity.to_string(~Q[42]) == "42"
   end
+
+  test "for non-number decimals" do
+    ["inf", "-inf", "nan"]
+    |> Enum.each(fn not_number ->
+      catch_error(not_number |> Decimal.new() |> Quantity.new("unit"))
+    end)
+  end
 end

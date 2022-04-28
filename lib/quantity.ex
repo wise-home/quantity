@@ -37,12 +37,21 @@ defmodule Quantity do
   """
   @spec new(Decimal.t(), unit) :: t
   def new(value, unit) do
-    unit = normalize_unit(unit)
+    cond do
+      Decimal.inf?(value) ->
+        raise ArgumentError, "Infinity not supported by Quantity"
 
-    %__MODULE__{
-      value: value,
-      unit: unit
-    }
+      Decimal.nan?(value) ->
+        raise ArgumentError, "NaN not supported by quantity"
+
+      true ->
+        unit = normalize_unit(unit)
+
+        %__MODULE__{
+          value: value,
+          unit: unit
+        }
+    end
   end
 
   @doc """
