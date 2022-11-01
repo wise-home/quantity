@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.0.1 2022-11-01
+
+* update ex_doc 0.28.5 -> 0.29.0
+* update earmark_parser 1.4.26 -> 1.4.29
+* update erlang 25.1.1 -> 25.1.2
+* update elixir 1.14.0 -> 1.14.1
+* update erlang 25.0.4 -> 25.1.1
+* Update credo 1.6.6 -> 1.6.7
+* Update elixir 1.13.4 -> 1.14.0
+* update bunt 0.2.0 -> 0.2.1
+* update ex_doc 0.28.4 -> 0.28.5
+* update erlang 25.0.3 -> 25.0.4
+* update credo 1.6.5 -> 1.6.6
+* update erlang 25.0.2 -> 25.0.3
+* update dialyxir 1.1.0 -> 1.2.0
+* update credo 1.6.4 -> 1.6.5
+* update erlang 25.0 -> 25.0.2
+* update earmark_parser 1.4.25 -> 1.4.26
+* Update erlang 24.3.4 -> 25.0
+* Update erlang 24.3.3 -> 24.3.4
+* Update ex_doc 0.28.3 -> 0.28.4
+
 ## 1.0.0 2022-04-28
 
 * Breaking change: Quantity no longer accepts infinity and NaN decimal values
