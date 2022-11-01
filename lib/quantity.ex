@@ -339,13 +339,13 @@ defmodule Quantity do
   @spec unit(t) :: unit
   def unit(quantity), do: quantity.unit
 
-  defimpl String.Chars, for: __MODULE__ do
+  defimpl String.Chars do
     def to_string(quantity) do
       @for.to_string(quantity)
     end
   end
 
-  defimpl Inspect, for: __MODULE__ do
+  defimpl Inspect do
     def inspect(quantity, _options) do
       "~Q[#{@for.to_string(quantity)}]"
     end
