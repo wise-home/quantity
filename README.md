@@ -191,14 +191,3 @@ Underneath, a `Quantity` is simply a map consisting of `value` and `unit`, where
   value: %{__struct__: Decimal, coef: 99, exp: 0, sign: 1}
 }
 ```
-
-
-## Versions of Elixir and Erlang
-
-Quantity will be tested against the two latest minor versions of Elixir (but >= 1.9) and the three latest minor versions of Erlang. In all cases the latest patch version is used.
-
-E.g. if the latest Elixir is 1.12.3 and the latest Erlang is 24.1.2, we test against:
-
-    Elixir: 1.11.4, 1.12.3
-    Erlang: 23.3.4.7, 24.0.6, 24.1.2
-
