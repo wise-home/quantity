@@ -35,8 +35,13 @@ defmodule Quantity.Math do
   @spec add!(Quantity.t(), Quantity.t()) :: Quantity.t()
   def add!(a, b) do
     case add(a, b) do
-      {:ok, result} -> result
-      :error -> raise(ArgumentError)
+      {:ok, result} ->
+        result
+
+      :error ->
+        raise(ArgumentError,
+          message: "arguments of different type: 1st argument #{inspect(a)} and 2nd argument #{inspect(b)}"
+        )
     end
   end
 
@@ -67,8 +72,13 @@ defmodule Quantity.Math do
   @spec sub!(Quantity.t(), Quantity.t()) :: Quantity.t()
   def sub!(a, b) do
     case sub(a, b) do
-      {:ok, result} -> result
-      :error -> raise(ArgumentError)
+      {:ok, result} ->
+        result
+
+      :error ->
+        raise(ArgumentError,
+          message: "arguments of different type: 1st argument #{inspect(a)} and 2nd argument #{inspect(b)}"
+        )
     end
   end
 
@@ -82,10 +92,11 @@ defmodule Quantity.Math do
   :error
 
   iex> sum([])
-  :error
+  {:error, :empty_list}
   """
-  @spec sum([Quantity.t()]) :: {:ok, Quantity.t()} | :error
-  def sum([]), do: :error
+  @spec sum([Quantity.t()]) :: {:ok, Quantity.t()} | {:error, :empty_list} | :error
+
+  def sum([]), do: {:error, :empty_list}
 
   def sum(quantities) do
     {first, remaining} = quantities |> List.pop_at(0)
@@ -99,6 +110,7 @@ defmodule Quantity.Math do
     end)
     |> case do
       :error -> :error
+      {:error, :empty_list} -> {:error, :empty_list}
       result -> {:ok, result}
     end
   end
@@ -136,8 +148,20 @@ defmodule Quantity.Math do
   @spec sum!([Quantity.t()]) :: Quantity.t()
   def sum!(quantities) do
     case sum(quantities) do
-      {:ok, result} -> result
-      :error -> raise(ArgumentError)
+      {:ok, result} ->
+        result
+
+      :error ->
+        quantities_string =
+          quantities
+          |> Enum.map_join(", ", &inspect/1)
+
+        raise(ArgumentError,
+          message: "arguments of different type: " <> quantities_string
+        )
+
+      {:error, :empty_list} ->
+        raise(ArgumentError, "empty list")
     end
   end
 
@@ -158,8 +182,17 @@ defmodule Quantity.Math do
   @spec sum!([Quantity.t()], integer, String.t()) :: Quantity.t()
   def sum!(quantities, exp, unit) do
     case sum(quantities, exp, unit) do
-      {:ok, result} -> result
-      :error -> raise(ArgumentError)
+      {:ok, result} ->
+        result
+
+      :error ->
+        quantities_string =
+          quantities
+          |> Enum.map_join(", ", &inspect/1)
+
+        raise(ArgumentError,
+          message: "arguments of different type: " <> quantities_string
+        )
     end
   end
 
