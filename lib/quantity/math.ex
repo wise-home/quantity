@@ -35,8 +35,13 @@ defmodule Quantity.Math do
   @spec add!(Quantity.t(), Quantity.t()) :: Quantity.t()
   def add!(a, b) do
     case add(a, b) do
-      {:ok, result} -> result
-      :error -> raise(ArgumentError)
+      {:ok, result} ->
+        result
+
+      :error ->
+        raise(ArgumentError,
+          message: "#{inspect(a)}, #{inspect(b)}"
+        )
     end
   end
 
@@ -67,8 +72,13 @@ defmodule Quantity.Math do
   @spec sub!(Quantity.t(), Quantity.t()) :: Quantity.t()
   def sub!(a, b) do
     case sub(a, b) do
-      {:ok, result} -> result
-      :error -> raise(ArgumentError)
+      {:ok, result} ->
+        result
+
+      :error ->
+        raise(ArgumentError,
+          message: "#{inspect(a)}, #{inspect(b)}"
+        )
     end
   end
 
@@ -85,6 +95,7 @@ defmodule Quantity.Math do
   :error
   """
   @spec sum([Quantity.t()]) :: {:ok, Quantity.t()} | :error
+
   def sum([]), do: :error
 
   def sum(quantities) do
@@ -136,8 +147,13 @@ defmodule Quantity.Math do
   @spec sum!([Quantity.t()]) :: Quantity.t()
   def sum!(quantities) do
     case sum(quantities) do
-      {:ok, result} -> result
-      :error -> raise(ArgumentError)
+      {:ok, result} ->
+        result
+
+      :error ->
+        raise(ArgumentError,
+          message: "#{inspect(quantities)}"
+        )
     end
   end
 
@@ -158,8 +174,13 @@ defmodule Quantity.Math do
   @spec sum!([Quantity.t()], integer, String.t()) :: Quantity.t()
   def sum!(quantities, exp, unit) do
     case sum(quantities, exp, unit) do
-      {:ok, result} -> result
-      :error -> raise(ArgumentError)
+      {:ok, result} ->
+        result
+
+      :error ->
+        raise(ArgumentError,
+          message: "#{inspect(quantities)}"
+        )
     end
   end
 
