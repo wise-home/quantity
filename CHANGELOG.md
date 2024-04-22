@@ -2,26 +2,16 @@
 
 ## 1.0.2 2024-02-05
 
-* Update deps
 * Update Elixir to 1.16
-* Update Elixir to 1.15.7
+* Update Erlang to 26
 * Remove unnecessary readme paragraph
 * Improve CI otp/elixir matrix
-* Update Erlang to 26
-* update elixir 1.14.4 -> 1.14.5
-* update erlang 25.3.1 -> 25.3.2
 * update dialyxir 1.2.0 -> 1.3.0
 * update credo 1.6.7 -> 1.7.0
-* update ex_doc 0.29.1 -> 0.29.4
+* update ex_doc 0.29.0 -> 0.29.4
 * update earmark_parser 1.4.30 -> 1.4.32
 * update makeup_elixir 0.16.0 -> 0.16.1, nimble_parsec 1.2.3 -> 1.3.1
 * update decimal 2.0.0 -> 2.1.1
-* update erlang 25.2.1 -> 25.3.1
-* update elixir 1.14.3 -> 1.14.4
-* Update deps 20230221 (#79)
-* update elixir 1.14.1 -> 1.14.3
-* update erlang 25.1.2 -> 25.2.1
-* update ex_doc 0.29.0 -> 0.29.1
 
 ## 1.0.1 2022-11-01
 
