@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.2 2024-02-05
+
+* Update Elixir to 1.16
+* Update Erlang to 26
+* Remove unnecessary readme paragraph
+* Improve CI otp/elixir matrix
+* update dialyxir 1.2.0 -> 1.3.0
+* update credo 1.6.7 -> 1.7.0
+* update ex_doc 0.29.0 -> 0.29.4
+* update earmark_parser 1.4.30 -> 1.4.32
+* update makeup_elixir 0.16.0 -> 0.16.1, nimble_parsec 1.2.3 -> 1.3.1
+* update decimal 2.0.0 -> 2.1.1
+
 ## 1.0.1 2022-11-01
 
 * update ex_doc 0.28.5 -> 0.29.0
