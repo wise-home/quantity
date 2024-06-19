@@ -10,29 +10,51 @@ defmodule Quantity.MathTest do
 
   describe "add!" do
     test "raises ArgumentError when adding two quantities with different units" do
-      assert_raise(ArgumentError, fn -> Quantity.add!(~Q[1 apple], ~Q[1 banana]) end)
+      a = ~Q[1 apple]
+      b = ~Q[1 banana]
+
+      assert_raise(
+        ArgumentError,
+        "#{inspect(a)}, #{inspect(b)}",
+        fn -> Quantity.add!(a, b) end
+      )
     end
   end
 
   describe "sub!" do
     test "raises ArgumentError when subtracting two quantities with different units" do
-      assert_raise(ArgumentError, fn -> Quantity.sub!(~Q[4 mice], ~Q[3 men]) end)
+      a = ~Q[4 mice]
+      b = ~Q[3 men]
+
+      assert_raise(
+        ArgumentError,
+        "#{inspect(a)}, #{inspect(b)}",
+        fn -> Quantity.sub!(~Q[4 mice], ~Q[3 men]) end
+      )
     end
   end
 
   describe "sum!/1" do
     test "raises ArgumentError when summing quantities with different units" do
-      assert_raise(ArgumentError, fn -> Quantity.sum!([~Q[123 bananas], ~Q[456 apples]]) end)
+      assert_raise(
+        ArgumentError,
+        "[~Q[123 bananas], ~Q[456 apples]]",
+        fn -> Quantity.sum!([~Q[123 bananas], ~Q[456 apples]]) end
+      )
     end
 
     test "raises ArgumentError when summing an empty list" do
-      assert_raise(ArgumentError, fn -> Quantity.sum!([]) end)
+      assert_raise(ArgumentError, "[]", fn -> Quantity.sum!([]) end)
     end
   end
 
   describe "sum!/3" do
     test "raises ArgumentError when summing quantities with different units" do
-      assert_raise(ArgumentError, fn -> Quantity.sum!([~Q[123 bananas], ~Q[456 apples]], 0, "apples") end)
+      assert_raise(
+        ArgumentError,
+        "[~Q[123 bananas], ~Q[456 apples]]",
+        fn -> Quantity.sum!([~Q[123 bananas], ~Q[456 apples]], 0, "apples") end
+      )
     end
   end
 
