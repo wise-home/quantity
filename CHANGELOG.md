@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3 2024-06-19
+
+* Added message to ArgumentError exception
+
 ## 1.0.2 2024-02-05
 
 * Update Elixir to 1.16
