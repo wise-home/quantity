@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.5 2025-04-11
+
+* feat(scripts): enhance tag_new_version
+* feat: add JSON encoding support for Quantity
+* build: ex_doc 0.31.2 -> 0.37.3
+* build: dialyxir 1.4.3 -> 1.4.5
+* build: credo 1.7.5 -> 1.7.11
+* ci(build-matrix): remove elixir 1.14 and 1.15
+* build: otp 26.2.1 -> 27.3.2, elixir 1.16.2 -> 1.18.3
+
 ## 1.0.4 2024-06-27
 
 * build(dependencies): update Mix dependencies (#86)
