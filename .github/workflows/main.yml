@@ -1,4 +1,4 @@
-name: CI
+name: Build on push
 
 on: push
 
@@ -17,11 +17,20 @@ jobs:
         elixir: [1.15.x, 1.16.x, 1.17.x]
     env:
       MIX_ENV: test
+      cache_version: v4
+
     steps:
       - uses: actions/checkout@v4
         name: Checkout
 
-      - uses: actions/cache@v4
+      - Uses: erlef/setup-elixir@v1
+        name: Setup elixir
+        id: setup-beam
+        with:
+          version-type: strict
+          version-file: .tool-versions
+
+      - uses: actions/cache@v1
         name: Cache deps
         with:
           path: deps
@@ -30,28 +39,37 @@ jobs:
             deps-${{ runner.os }}
 
       - uses: actions/cache@v4
-        name: Cache _build
+        name: Cache deps
         with:
-          path: _build
-          key: build-erlef-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            build-erlef-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
+          path: |
+            deps
+            _build
+          key: >
+            mix-${{ env.cache_version }}-${{ runner.os }}-
+            ${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
+          restore-keys: >
+            mix-${{ env.cache_version }}-${{ runner.os }}-
+            ${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}
 
-      - uses: erlef/setup-elixir@v1
-        name: Setup elixir
-        with:
-          otp-version: ${{matrix.otp}}
-          elixir-version: ${{matrix.elixir}}
+      - name: Install dependencies
+        run: mix deps.get
 
-      - run: mix deps.get
+      - name: Build
+        run: mix compile
+
+      - name: Test
+        run: mix test --include skip
+
+      - name: Credo
+        run: mix credo
+
+      - name: Dialyzer
+        run: mix dialyzer
+
+      - name: Check if files is formatted
+        run: mix format --check-formatted
 
       - name: Check that no unused deps exist
         run: |
           mix deps.clean --unused --unlock
           git diff --exit-code
-
-      - run: mix compile
-      - run: mix test --trace --include skip
-      - run: mix credo
-      - run: mix dialyzer
-      - run: mix format --check-formatted
