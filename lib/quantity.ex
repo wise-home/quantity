@@ -146,7 +146,7 @@ defmodule Quantity do
 
   @doc """
   Encodes the quantity as a string. The result is parsable with parse/1
-  If the exponent is positive, encode usinge the "raw" format to preserve precision
+  If the exponent is positive, encode using the "raw" format to preserve precision
 
   iex> Quantity.new(42, -1, "db") |> Quantity.to_string()
   "4.2 db"
@@ -348,6 +348,15 @@ defmodule Quantity do
   defimpl Inspect do
     def inspect(quantity, _options) do
       "~Q[#{@for.to_string(quantity)}]"
+    end
+  end
+
+  defimpl Jason.Encoder do
+    @impl Jason.Encoder
+    def encode(value, opts) do
+      value
+      |> Quantity.to_string()
+      |> Jason.Encode.string(opts)
     end
   end
 
