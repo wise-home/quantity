@@ -55,6 +55,10 @@ defmodule QuantityTest do
     assert Quantity.to_string(~Q[42]) == "42"
   end
 
+  test "encode to json from map" do
+    assert %{quantity: ~Q[12.45 DKK]} |> Jason.encode!() == ~S|{"quantity":"12.45 DKK"}|
+  end
+
   test "for non-number decimals" do
     ["inf", "-inf", "nan"]
     |> Enum.each(fn not_number ->
