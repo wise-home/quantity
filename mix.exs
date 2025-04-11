@@ -4,7 +4,7 @@ defmodule Quantity.MixProject do
   def project do
     [
       app: :quantity,
-      version: "1.0.2",
+      version: "1.0.4",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
