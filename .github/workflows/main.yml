@@ -16,6 +16,9 @@ jobs:
       matrix:
         otp: [27, 28]
         elixir: [1.17.x, 1.18.x]
+        exclude:
+          - otp: 28
+            elixir: 1.17.x
     env:
       MIX_ENV: test
     steps:
