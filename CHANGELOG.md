@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.6 2025-08-18
+
+* Update dependencies 
+
 ## 1.0.5 2025-04-11
 
 * feat(scripts): enhance tag_new_version
