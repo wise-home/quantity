@@ -10,12 +10,19 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: OTP ${{ matrix.otp }} / Elixir ${{ matrix.elixir }}
+    name: OTP ${{ matrix.otp }} / Elixir ${{ matrix.elixir }} / decimal ${{ matrix.decimal }}
     strategy:
       fail-fast: false
       matrix:
         otp: [27, 28]
         elixir: [1.18.x, 1.19.x]
+        decimal: [locked]
+        include:
+          # Verify the `~> 2.0 or ~> 3.0` decimal constraint by also
+          # exercising the test suite against the latest decimal 2.x.
+          - otp: 28
+            elixir: 1.19.x
+            decimal: "2.x"
     env:
       MIX_ENV: test
     steps:
@@ -26,17 +33,17 @@ jobs:
         name: Cache deps
         with:
           path: deps
-          key: deps-${{ runner.os }}-${{ hashFiles('mix.lock') }}
+          key: deps-${{ runner.os }}-${{ matrix.decimal }}-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            deps-${{ runner.os }}
+            deps-${{ runner.os }}-${{ matrix.decimal }}
 
       - uses: actions/cache@v4
         name: Cache _build
         with:
           path: _build
-          key: build-erlef-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('mix.lock') }}
+          key: build-erlef-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.decimal }}-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            build-erlef-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
+            build-erlef-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.decimal }}
 
       - uses: erlef/setup-elixir@v1
         name: Setup elixir
@@ -50,6 +57,14 @@ jobs:
         run: |
           mix deps.clean --unused --unlock
           git diff --exit-code
+
+      - name: Override decimal to 2.x
+        if: matrix.decimal == '2.x'
+        run: |
+          sed -i 's/~> 2.0 or ~> 3.0/~> 2.0/' mix.exs
+          mix deps.unlock decimal
+          mix deps.get
+          mix deps.compile decimal --force
 
       - run: mix compile
       - run: mix test --trace --include skip
