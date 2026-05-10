@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.0 2026-05-10
+
+* chore(deps): decimal 2.4.1 -> 3.1.0
+* chore(deps): ex_doc 0.38.2 -> 0.40.2 (+ makeup_erlang 1.0.2 -> 1.1.0)
+* chore(deps): dialyxir 1.4.6 -> 1.4.7 (+ erlex 0.2.7 -> 0.2.8)
+* chore(deps): credo 1.7.12 -> 1.7.18 (+ file_system 1.1.0 -> 1.1.1)
+* chore(deps): decimal 2.3.0 -> 2.4.1
+* chore(deps): jason 1.4.4 -> 1.4.5
+* chore(deps): elixir 1.18.4-otp-28 -> 1.19.5-otp-28
+* chore(deps): erlang 28.0.2 -> 28.5
+
 ## 1.0.6 2025-08-18
 
 * Update dependencies 
