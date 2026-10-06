@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.1 2026-10-06
+
+* chore(deps): ex_doc 0.40.2 -> 0.40.4
+* chore(deps): dialyxir 1.4.7 -> 1.4.8 (+ erlex 0.2.8 -> 0.2.9)
+* chore(deps): credo 1.7.18 -> 1.7.19
+* chore(deps): decimal 3.1.0 -> 3.1.1
+
 ## 1.1.0 2026-05-10
 
 * chore(deps): decimal 2.4.1 -> 3.1.0
